@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0f1115" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="PitWall Fuel" />
+  <link rel="manifest" href="manifest.json" />
+  <title>PitWall Fuel Calc</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --card: #181b22;
+      --border: #2a2f3a;
+      --accent: #ff2e7e;
+      --text: #f3f4f6;
+      --muted: #9ca3af;
+    }
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      padding: 16px;
+      display: flex;
+      justify-content: center;
+    }
+    .app { width: 100%; max-width: 460px; }
+    h1 { font-size: 1.25rem; margin: 0 0 4px; letter-spacing: 0.5px; }
+    .sub { color: var(--muted); font-size: 0.85rem; margin-bottom: 16px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+    label { display: block; font-size: 0.75rem; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+    select, input {
+      width: 100%;
+      padding: 11px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #0f1115;
+      color: var(--text);
+      font-size: 0.95rem;
+      margin-bottom: 12px;
+    }
+    select:focus, input:focus { outline: none; border-color: var(--accent); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .unit-tabs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .unit-btn {
+      padding: 9px 4px;
+      background: #0f1115;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .unit-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+    .meta-bar {
+      font-size: 0.82rem;
+      color: var(--muted);
+      background: #12141a;
+      padding: 8px 12px;
+      border-radius: 8px;
+      margin-top: -4px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .meta-bar strong { color: var(--text); }
+    .temp-wrap {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 12px;
+    }
+    .temp-wrap input { margin-bottom: 0; }
+    .temp-toggle {
+      padding: 0 12px;
+      background: #262a34;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+    .results {
+      background: linear-gradient(145deg, #1c1f28, #14171f);
+      border: 1px solid var(--accent);
+    }
+    .hero-stat { text-align: center; padding: 6px 0 14px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
+    .hero-val { font-size: 2.5rem; font-weight: 800; color: var(--accent); line-height: 1.1; }
+    .hero-sub { font-size: 0.85rem; color: var(--text); margin-top: 4px; font-weight: 500; }
+    .hero-lbl { font-size: 0.75rem; color: var(--muted); margin-top: 4px; letter-spacing: 0.5px; }
+    .grid-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; text-align: center; }
+    .stat-box { background: #0f1115; padding: 10px 6px; border-radius: 8px; }
+    .stat-val { font-size: 1rem; font-weight: 700; }
+    .stat-lbl { font-size: 0.68rem; color: var(--muted); margin-top: 2px; }
+    .btn-row { display: flex; gap: 8px; margin-top: 12px; }
+    .action-btn {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    .btn-clear { background: #262a34; color: var(--text); }
+    .btn-save { background: var(--accent); color: #fff; }
+    .history-item {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .history-item:last-child { border-bottom: none; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1>FUEL BURN CALCULATOR</h1>
+    <div class="sub">VP E100 post-session pump-out &amp; consumption estimator</div>
+
+    <div class="card">
+      <label for="trackSelect">Select Track</label>
+      <select id="trackSelect"></select>
+
+      <div id="customTrackFields" class="row" style="display:none;">
+        <div>
+          <label for="customName">Track Name</label>
+          <input type="text" id="customName" placeholder="e.g. Homestead" />
+        </div>
+        <div>
+          <label for="customMiles">Length (Miles)</label>
+          <input type="number" id="customMiles" step="0.01" placeholder="2.21" />
+        </div>
+      </div>
+
+      <div class="meta-bar" id="trackMeta">Length: 3.56 mi (5.73 km)</div>
+
+      <label>Measurement Mode (Scale vs. Pump)</label>
+      <div class="unit-tabs">
+        <button type="button" class="unit-btn active" data-unit="L">Liters (L)</button>
+        <button type="button" class="unit-btn" data-unit="gal">Gallons</button>
+        <button type="button" class="unit-btn" data-unit="kg">Weight (kg)</button>
+        <button type="button" class="unit-btn" data-unit="lbs">Weight (lbs)</button>
+      </div>
+
+      <div id="sgSection" style="display:none;">
+        <div class="row">
+          <div>
+            <label for="fuelPreset">Fuel Blend</label>
+            <select id="fuelPreset">
+              <option value="0.790" data-beta="0.00060" selected>VP E100 (0.790 @ 60°F)</option>
+              <option value="0.765" data-beta="0.00050">VP MS100 (0.765 @ 60°F)</option>
+              <option value="0.745" data-beta="0.00050">Race Unleaded (0.745 @ 60°F)</option>
+              <option value="0.734" data-beta="0.00050">Sunoco 260 GT (0.734 @ 60°F)</option>
+              <option value="0.718" data-beta="0.00050">VP C12 (0.718 @ 60°F)</option>
+              <option value="custom" data-beta="0.00055">Custom SG...</option>
+            </select>
+          </div>
+          <div>
+            <label for="baseSgInput">Base SG (@ 60°F)</label>
+            <input type="number" id="baseSgInput" step="0.001" value="0.790" inputmode="decimal" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="fuelTemp">Fuel Temp</label>
+            <div class="temp-wrap">
+              <input type="number" id="fuelTemp" step="1" value="60" inputmode="decimal" />
+              <button type="button" class="temp-toggle" id="tempUnitBtn">°F</button>
+            </div>
+          </div>
+          <div>
+            <label>Temp-Adjusted SG</label>
+            <div class="meta-bar" style="margin-top:0; height:42px;">
+              <span>Live SG:</span>
+              <strong id="adjustedSgDisplay">0.7900</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label for="fuelIn" id="fuelInLbl">Fuel Put In (L)</label>
+          <input type="number" id="fuelIn" step="0.1" inputmode="decimal" placeholder="0.0" />
+        </div>
+        <div>
+          <label for="fuelOut" id="fuelOutLbl">Fuel Pumped Out (L)</label>
+          <input type="number" id="fuelOut" step="0.1" inputmode="decimal" placeholder="0.0" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label for="lapsRun">Laps Completed</label>
+          <input type="number" id="lapsRun" step="1" inputmode="numeric" placeholder="0" />
+        </div>
+        <div>
+          <label for="tankCap" id="tankCapLbl">Tank Capacity (L) <span style="opacity:.6">(Opt)</span></label>
+          <input type="number" id="tankCap" step="0.5" inputmode="decimal" placeholder="100" />
+        </div>
+      </div>
+    </div>
+
+    <div class="card results">
+      <div class="hero-stat">
+        <div class="hero-val" id="lPerLap">0.00 L</div>
+        <div class="hero-sub" id="weightPerLap">0.00 kg / lap · 0.00 lbs / lap</div>
+        <div class="hero-lbl">ESTIMATED FUEL USED PER LAP</div>
+      </div>
+      <div class="grid-stats">
+        <div class="stat-box">
+          <div class="stat-val" id="netBurned">0.0 L</div>
+          <div class="stat-lbl">Net Burned</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="lPerKm">0.00</div>
+          <div class="stat-lbl">Liters / km</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="estStint">--</div>
+          <div class="stat-lbl">Max Laps/Tank</div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button type="button" class="action-btn btn-clear" onclick="clearInputs()">Reset</button>
+        <button type="button" class="action-btn btn-save" onclick="saveLog()">Log Session</button>
+      </div>
+    </div>
+
+    <div class="card" id="historyCard" style="display:none;">
+      <label>Session Log</label>
+      <div id="historyList"></div>
+    </div>
+  </div>
+
+  <script>
+    const tracks = [
+      { name: "Daytona International Speedway (Road)", miles: 3.56 },
+      { name: "Sebring International Raceway", miles: 3.74 },
+      { name: "Road Atlanta", miles: 2.54 },
+      { name: "Watkins Glen International", miles: 3.40 },
+      { name: "Road America", miles: 4.048 },
+      { name: "VIRginia International Raceway", miles: 3.27 },
+      { name: "Laguna Seca", miles: 2.238 },
+      { name: "Indianapolis Motor Speedway (Road)", miles: 2.439 },
+      { name: "Mid-Ohio Sports Car Course", miles: 2.258 },
+      { name: "Barber Motorsports Park", miles: 2.38 },
+      { name: "Sonoma Raceway", miles: 2.52 },
+      { name: "Circuit of the Americas (COTA)", miles: 3.426 },
+      { name: "Custom Track...", miles: 0 }
+    ];
+
+    let activeUnit = "L";
+    let tempUnit = "F";
+
+    const trackSelect = document.getElementById("trackSelect");
+    const customFields = document.getElementById("customTrackFields");
+    const customMiles = document.getElementById("customMiles");
+    const trackMeta = document.getElementById("trackMeta");
+    const sgSection = document.getElementById("sgSection");
+    const fuelPreset = document.getElementById("fuelPreset");
+    const baseSgInput = document.getElementById("baseSgInput");
+    const fuelTempInput = document.getElementById("fuelTemp");
+    const tempUnitBtn = document.getElementById("tempUnitBtn");
+    const adjustedSgDisplay = document.getElementById("adjustedSgDisplay");
+
+    tracks.forEach((t, i) => {
+      const opt = document.createElement("option");
+      opt.value = i;
+      opt.textContent = t.name;
+      trackSelect.appendChild(opt);
+    });
+
+    function getAdjustedSG() {
+      const baseSg = parseFloat(baseSgInput.value) || 0.790;
+      const rawTemp = parseFloat(fuelTempInput.value);
+      if (isNaN(rawTemp)) return baseSg;
+
+      const tempF = tempUnit === "F" ? rawTemp : (rawTemp * 9 / 5) + 32;
+      const selectedOpt = fuelPreset.options[fuelPreset.selectedIndex];
+      const beta = parseFloat(selectedOpt.dataset.beta) || 0.00060;
+
+      const adjSg = baseSg - (beta * (tempF - 60));
+      return Math.max(0.5, adjSg);
+    }
+
+    function toLiters(val, unit, sg) {
+      if (!val || val <= 0) return 0;
+      if (unit === "L") return val;
+      if (unit === "gal") return val * 3.78541;
+      if (unit === "kg") return sg > 0 ? val / sg : 0;
+      if (unit === "lbs") return sg > 0 ? (val * 0.45359237) / sg : 0;
+      return val;
+    }
+
+    function setUnit(unit) {
+      activeUnit = unit;
+      document.querySelectorAll(".unit-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.unit === unit);
+      });
+
+      const isWeight = (unit === "kg" || unit === "lbs");
+      sgSection.style.display = isWeight ? "block" : "none";
+
+      document.getElementById("fuelInLbl").textContent = `Fuel Put In (${unit})`;
+      document.getElementById("fuelOutLbl").textContent = `Fuel Pumped Out (${unit})`;
+      document.getElementById("tankCapLbl").innerHTML = `Tank Capacity (${unit}) <span style="opacity:.6">(Opt)</span>`;
+      calculate();
+    }
+
+    function getActiveMiles() {
+      const idx = parseInt(trackSelect.value, 10);
+      return tracks[idx].miles === 0 ? (parseFloat(customMiles.value) || 0) : tracks[idx].miles;
+    }
+
+    function updateTrackInfo() {
+      const idx = parseInt(trackSelect.value, 10);
+      customFields.style.display = tracks[idx].miles === 0 ? "grid" : "none";
+      const miles = getActiveMiles();
+      const km = miles * 1.60934;
+      trackMeta.textContent = miles > 0
+        ? `Length: ${miles.toFixed(3)} mi (${km.toFixed(2)} km)`
+        : "Enter custom track length in miles";
+      calculate();
+    }
+
+    function calculate() {
+      const rawIn = parseFloat(document.getElementById("fuelIn").value) || 0;
+      const rawOut = parseFloat(document.getElementById("fuelOut").value) || 0;
+      const rawTank = parseFloat(document.getElementById("tankCap").value) || 0;
+      const laps = parseFloat(document.getElementById("lapsRun").value) || 0;
+
+      const sg = getAdjustedSG();
+      adjustedSgDisplay.textContent = sg.toFixed(4);
+
+      const fuelInL = toLiters(rawIn, activeUnit, sg);
+      const fuelOutL = toLiters(rawOut, activeUnit, sg);
+      const tankL = toLiters(rawTank, activeUnit, sg);
+
+      const miles = getActiveMiles();
+      const km = miles * 1.60934;
+
+      const netL = Math.max(0, fuelInL - fuelOutL);
+      const lPerLap = laps > 0 ? netL / laps : 0;
+      const kgPerLap = lPerLap * sg;
+      const lbsPerLap = kgPerLap * 2.20462;
+
+      const totalKm = laps * km;
+      const lPerKm = totalKm > 0 ? netL / totalKm : 0;
+      const maxLaps = (tankL > 0 && lPerLap > 0) ? (tankL / lPerLap).toFixed(1) : "--";
+
+      document.getElementById("lPerLap").textContent = `${lPerLap.toFixed(2)} L`;
+      document.getElementById("weightPerLap").textContent = `${kgPerLap.toFixed(2)} kg / lap · ${lbsPerLap.toFixed(2)} lbs / lap`;
+      document.getElementById("netBurned").textContent = `${netL.toFixed(1)} L`;
+      document.getElementById("lPerKm").textContent = lPerKm.toFixed(2);
+      document.getElementById("estStint").textContent = maxLaps;
+    }
+
+    function clearInputs() {
+      ["fuelIn", "fuelOut", "lapsRun"].forEach(id => document.getElementById(id).value = "");
+      calculate();
+    }
+
+    function saveLog() {
+      const idx = parseInt(trackSelect.value, 10);
+      const name = tracks[idx].miles === 0
+        ? (document.getElementById("customName").value || "Custom")
+        : tracks[idx].name.split(" (")[0];
+      const lPerLap = document.getElementById("lPerLap").textContent;
+      const net = document.getElementById("netBurned").textContent;
+      const laps = document.getElementById("lapsRun").value || 0;
+      const tempVal = fuelTempInput.value || "60";
+
+      if (parseFloat(lPerLap) <= 0) return;
+
+      const list = document.getElementById("historyList");
+      const item = document.createElement("div");
+      item.className = "history-item";
+      const unitInfo = (activeUnit === "kg" || activeUnit === "lbs")
+        ? `${activeUnit} @ ${tempVal}°${tempUnit}`
+        : activeUnit;
+      item.innerHTML = `<span><strong>${name}</strong> (${laps} laps · ${unitInfo})</span><span>${net} · <strong>${lPerLap}/lap</strong></span>`;
+      list.prepend(item);
+      document.getElementById("historyCard").style.display = "block";
+    }
+
+    document.querySelectorAll(".unit-btn").forEach(btn => {
+      btn.addEventListener("click", () => setUnit(btn.dataset.unit));
+    });
+
+    tempUnitBtn.addEventListener("click", () => {
+      const cur = parseFloat(fuelTempInput.value);
+      if (tempUnit === "F") {
+        tempUnit = "C";
+        tempUnitBtn.textContent = "°C";
+        if (!isNaN(cur)) fuelTempInput.value = ((cur - 32) * 5 / 9).toFixed(1);
+      } else {
+        tempUnit = "F";
+        tempUnitBtn.textContent = "°F";
+        if (!isNaN(cur)) fuelTempInput.value = ((cur * 9 / 5) + 32).toFixed(0);
+      }
+      calculate();
+    });
+
+    fuelPreset.addEventListener("change", () => {
+      if (fuelPreset.value !== "custom") {
+        baseSgInput.value = fuelPreset.value;
+        calculate();
+      } else {
+        baseSgInput.focus();
+      }
+    });
+
+    baseSgInput.addEventListener("input", () => {
+      fuelPreset.value = "custom";
+      calculate();
+    });
+
+    trackSelect.addEventListener("change", updateTrackInfo);
+    ["fuelIn", "fuelOut", "lapsRun", "tankCap", "customMiles", "fuelTemp"].forEach(id => {
+      document.getElementById(id).addEventListener("input", calculate);
+    });
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js").catch(() => {});
+      });
+    }
+
+    updateTrackInfo();
+  </script>
+</body>
+</html>
