@@ -1,4 +1,4 @@
-# PitWall Fuel Burn Calculator
+# Pit Wall Fuel Burn Calculator
 
 A lightweight, mobile-first Progressive Web App (PWA) built for pit-lane fuelers and race engineers to calculate post-session fuel consumption (**Liters/lap**, **kg/lap**, and **lbs/lap**) from pump-in and pump-out measurements.
 
