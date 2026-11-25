@@ -27,17 +27,6 @@ Pre-configured for **VP E100** (`0.790` base SG @ 60°F) and major North America
 
 ---
 
-## Quick Deployment
-
-### Option 1: Netlify Drop (Fastest — No Account Needed)
-1. Place `index.html`, `manifest.json`, and `sw.js` in a single folder.
-2. Go to [app.netlify.com/drop](https://app.netlify.com/drop).
-3. Drag and drop the folder onto the browser window to get an instant HTTPS URL.
-
-### Option 2: GitHub Pages / Vercel / Cloudflare Pages
-1. Push all files to the root of a GitHub repository.
-2. Enable **GitHub Pages** (Settings → Pages → Deploy from `main` branch) or import the repo into Vercel/Cloudflare Pages.
-
 ### Installing on iPhone / Android (Pit Lane Use)
 1. Open the deployed HTTPS URL in **Safari** (iOS) or **Chrome** (Android).
 2. Tap **Share → Add to Home Screen** (iOS) or **Menu → Install App** (Android).
