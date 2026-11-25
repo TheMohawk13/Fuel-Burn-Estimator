@@ -368,6 +368,8 @@
       const kgPerLap = lPerLap * sg;
       const lbsPerLap = kgPerLap * 2.20462;
 
+      // If user hasn't entered laps yet, allow quick comparison based on track length
+      // (e.g., 1 lap default preview when switching tracks with fuel entered, or show L/km)
       const totalKm = laps * km;
       const lPerKm = totalKm > 0 ? netL / totalKm : 0;
       const maxLaps = (tankL > 0 && lPerLap > 0) ? (tankL / lPerLap).toFixed(1) : "--";
@@ -439,9 +441,12 @@
       calculate();
     });
 
+    // Automatically recalculate on both change and live typing in track selection / custom miles
     trackSelect.addEventListener("change", updateTrackInfo);
+    trackSelect.addEventListener("input", updateTrackInfo);
     ["fuelIn", "fuelOut", "lapsRun", "tankCap", "customMiles", "fuelTemp"].forEach(id => {
       document.getElementById(id).addEventListener("input", calculate);
+      document.getElementById(id).addEventListener("change", calculate);
     });
 
     if ("serviceWorker" in navigator) {
