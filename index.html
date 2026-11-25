@@ -17,6 +17,7 @@
       --accent: #ff2e7e;
       --text: #f3f4f6;
       --muted: #9ca3af;
+      --good: #10b981;
     }
     * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body {
@@ -29,13 +30,40 @@
     }
     .app { width: 100%; max-width: 460px; }
     h1 { font-size: 1.25rem; margin: 0 0 4px; letter-spacing: 0.5px; }
-    .sub { color: var(--muted); font-size: 0.85rem; margin-bottom: 16px; }
+    .sub { color: var(--muted); font-size: 0.85rem; margin-bottom: 14px; }
+    .mode-nav {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .nav-btn {
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+    .nav-btn.active {
+      background: #221621;
+      border-color: var(--accent);
+      color: #fff;
+    }
     .card {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 16px;
       margin-bottom: 14px;
+    }
+    .section-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      margin: 0 0 10px;
+      color: var(--text);
     }
     label { display: block; font-size: 0.75rem; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
     select, input {
@@ -124,6 +152,7 @@
     }
     .btn-clear { background: #262a34; color: var(--text); }
     .btn-save { background: var(--accent); color: #fff; }
+    .btn-apply { background: var(--good); color: #07130e; }
     .history-item {
       display: flex;
       justify-content: space-between;
@@ -132,127 +161,249 @@
       border-bottom: 1px solid var(--border);
     }
     .history-item:last-child { border-bottom: none; }
+    .note-box {
+      font-size: 0.78rem;
+      color: var(--muted);
+      background: #12141a;
+      border-left: 3px solid var(--accent);
+      padding: 8px 10px;
+      border-radius: 6px;
+      margin-top: 8px;
+    }
   </style>
 </head>
 <body>
   <div class="app">
-    <h1>FUEL BURN CALCULATOR</h1>
-    <div class="sub">VP E100 post-session pump-out &amp; consumption estimator</div>
+    <h1>FUEL BURN &amp; SG TOOLKIT</h1>
+    <div class="sub">VP E100 burn estimator &amp; jug-fill SG / scale calculator</div>
 
-    <div class="card">
-      <label for="trackSelect">Select Track</label>
-      <select id="trackSelect"></select>
+    <div class="mode-nav">
+      <button type="button" class="nav-btn active" id="tabBurn">1. Burn / Lap Calc</button>
+      <button type="button" class="nav-btn" id="tabJugSg">2. Jug Fill &amp; SG Calc</button>
+    </div>
 
-      <div id="customTrackFields" class="row" style="display:none;">
-        <div>
-          <label for="customName">Track Name</label>
-          <input type="text" id="customName" placeholder="e.g. Homestead" />
+    <!-- TAB 1: BURN CALCULATOR -->
+    <div id="burnView">
+      <div class="card">
+        <label for="trackSelect">Select Track</label>
+        <select id="trackSelect"></select>
+
+        <div id="customTrackFields" class="row" style="display:none;">
+          <div>
+            <label for="customName">Track Name</label>
+            <input type="text" id="customName" placeholder="e.g. Homestead" />
+          </div>
+          <div>
+            <label for="customMiles">Length (Miles)</label>
+            <input type="number" id="customMiles" step="0.01" placeholder="2.21" />
+          </div>
         </div>
-        <div>
-          <label for="customMiles">Length (Miles)</label>
-          <input type="number" id="customMiles" step="0.01" placeholder="2.21" />
+
+        <div class="meta-bar" id="trackMeta">Length: 3.56 mi (5.73 km)</div>
+
+        <label>Measurement Mode (Scale vs. Pump)</label>
+        <div class="unit-tabs">
+          <button type="button" class="unit-btn active" data-unit="L">Liters (L)</button>
+          <button type="button" class="unit-btn" data-unit="gal">Gallons</button>
+          <button type="button" class="unit-btn" data-unit="kg">Weight (kg)</button>
+          <button type="button" class="unit-btn" data-unit="lbs">Weight (lbs)</button>
         </div>
-      </div>
 
-      <div class="meta-bar" id="trackMeta">Length: 3.56 mi (5.73 km)</div>
+        <div id="sgSection" style="display:none;">
+          <div class="row">
+            <div>
+              <label for="fuelPreset">Fuel Blend</label>
+              <select id="fuelPreset">
+                <option value="0.790" data-beta="0.00060" selected>VP E100 (0.790 @ 60°F)</option>
+                <option value="0.765" data-beta="0.00050">VP MS100 (0.765 @ 60°F)</option>
+                <option value="0.745" data-beta="0.00050">Race Unleaded (0.745 @ 60°F)</option>
+                <option value="0.734" data-beta="0.00050">Sunoco 260 GT (0.734 @ 60°F)</option>
+                <option value="0.718" data-beta="0.00050">VP C12 (0.718 @ 60°F)</option>
+                <option value="custom" data-beta="0.00055">Custom SG...</option>
+              </select>
+            </div>
+            <div>
+              <label for="baseSgInput">Base SG (@ 60°F)</label>
+              <input type="number" id="baseSgInput" step="0.001" value="0.790" inputmode="decimal" />
+            </div>
+          </div>
 
-      <label>Measurement Mode (Scale vs. Pump)</label>
-      <div class="unit-tabs">
-        <button type="button" class="unit-btn active" data-unit="L">Liters (L)</button>
-        <button type="button" class="unit-btn" data-unit="gal">Gallons</button>
-        <button type="button" class="unit-btn" data-unit="kg">Weight (kg)</button>
-        <button type="button" class="unit-btn" data-unit="lbs">Weight (lbs)</button>
-      </div>
+          <div class="row">
+            <div>
+              <label for="fuelTemp">Fuel Temp</label>
+              <div class="temp-wrap">
+                <input type="number" id="fuelTemp" step="1" value="60" inputmode="decimal" />
+                <button type="button" class="temp-toggle" id="tempUnitBtn">°F</button>
+              </div>
+            </div>
+            <div>
+              <label>Temp-Adjusted SG</label>
+              <div class="meta-bar" style="margin-top:0; height:42px;">
+                <span>Live SG:</span>
+                <strong id="adjustedSgDisplay">0.7900</strong>
+              </div>
+            </div>
+          </div>
+        </div>
 
-      <div id="sgSection" style="display:none;">
         <div class="row">
           <div>
-            <label for="fuelPreset">Fuel Blend</label>
-            <select id="fuelPreset">
-              <option value="0.790" data-beta="0.00060" selected>VP E100 (0.790 @ 60°F)</option>
-              <option value="0.765" data-beta="0.00050">VP MS100 (0.765 @ 60°F)</option>
-              <option value="0.745" data-beta="0.00050">Race Unleaded (0.745 @ 60°F)</option>
-              <option value="0.734" data-beta="0.00050">Sunoco 260 GT (0.734 @ 60°F)</option>
-              <option value="0.718" data-beta="0.00050">VP C12 (0.718 @ 60°F)</option>
-              <option value="custom" data-beta="0.00055">Custom SG...</option>
+            <label for="fuelIn" id="fuelInLbl">Fuel Put In (L)</label>
+            <input type="number" id="fuelIn" step="0.1" inputmode="decimal" placeholder="0.0" />
+          </div>
+          <div>
+            <label for="fuelOut" id="fuelOutLbl">Fuel Pumped Out (L)</label>
+            <input type="number" id="fuelOut" step="0.1" inputmode="decimal" placeholder="0.0" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="lapsRun">Laps Completed</label>
+            <input type="number" id="lapsRun" step="1" inputmode="numeric" placeholder="0" />
+          </div>
+          <div>
+            <label for="tankCap" id="tankCapLbl">Tank Capacity (L) <span style="opacity:.6">(Opt)</span></label>
+            <input type="number" id="tankCap" step="0.5" inputmode="decimal" placeholder="100" />
+          </div>
+        </div>
+      </div>
+
+      <div class="card results">
+        <div class="hero-stat">
+          <div class="hero-val" id="lPerLap">0.00 L</div>
+          <div class="hero-sub" id="weightPerLap">0.00 kg / lap · 0.00 lbs / lap</div>
+          <div class="hero-lbl">ESTIMATED FUEL USED PER LAP</div>
+        </div>
+        <div class="grid-stats">
+          <div class="stat-box">
+            <div class="stat-val" id="netBurned">0.0 L</div>
+            <div class="stat-lbl">Net Burned</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val" id="lPerKm">0.00</div>
+            <div class="stat-lbl">Liters / km</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val" id="estStint">--</div>
+            <div class="stat-lbl">Max Laps/Tank</div>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button type="button" class="action-btn btn-clear" onclick="clearInputs()">Reset</button>
+          <button type="button" class="action-btn btn-save" onclick="saveLog()">Log Session</button>
+        </div>
+      </div>
+
+      <div class="card" id="historyCard" style="display:none;">
+        <label>Session Log</label>
+        <div id="historyList"></div>
+      </div>
+    </div>
+
+    <!-- TAB 2: JUG FILL & SG CALCULATOR -->
+    <div id="jugSgView" style="display:none;">
+      <div class="card">
+        <div class="section-title">A. Measure SG from Jug / Sample</div>
+        <div class="sub" style="margin-bottom:12px;">Weigh a known volume (or known liters/gallons of fuel) to get actual SG</div>
+
+        <div class="row">
+          <div>
+            <label for="jugSampleVol">Known Fuel Volume</label>
+            <input type="number" id="jugSampleVol" step="0.1" value="20" inputmode="decimal" />
+          </div>
+          <div>
+            <label for="jugSampleVolUnit">Volume Unit</label>
+            <select id="jugSampleVolUnit">
+              <option value="L" selected>Liters (L)</option>
+              <option value="gal">US Gallons (gal)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="jugTareWeight">Empty Jug / Tare Weight</label>
+            <input type="number" id="jugTareWeight" step="0.01" value="0" inputmode="decimal" />
+          </div>
+          <div>
+            <label for="jugGrossWeight">Gross Weight (Jug + Fuel)</label>
+            <input type="number" id="jugGrossWeight" step="0.01" placeholder="e.g. 15.80" inputmode="decimal" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="jugScaleUnit">Scale Weight Unit</label>
+            <select id="jugScaleUnit">
+              <option value="kg" selected>Kilograms (kg)</option>
+              <option value="lbs">Pounds (lbs)</option>
             </select>
           </div>
           <div>
-            <label for="baseSgInput">Base SG (@ 60°F)</label>
-            <input type="number" id="baseSgInput" step="0.001" value="0.790" inputmode="decimal" />
+            <label for="jugTemp">Fuel Temp at Fill</label>
+            <div class="temp-wrap">
+              <input type="number" id="jugTemp" step="1" value="60" inputmode="decimal" />
+              <button type="button" class="temp-toggle" id="jugTempUnitBtn">°F</button>
+            </div>
           </div>
         </div>
 
+        <div class="meta-bar">
+          <span>Net Fuel Weight:</span>
+          <strong id="jugNetWeightDisp">0.00 kg</strong>
+        </div>
+        <div class="meta-bar">
+          <span>60°F Normalized SG:</span>
+          <strong id="jugNormSgDisp">--</strong>
+        </div>
+      </div>
+
+      <div class="card results">
+        <div class="hero-stat">
+          <div class="hero-val" id="measuredSgVal">--</div>
+          <div class="hero-sub" id="jugDensitySub">Enter gross fuel weight to calculate SG</div>
+          <div class="hero-lbl">MEASURED SPECIFIC GRAVITY @ TEMP</div>
+        </div>
+        <div class="grid-stats">
+          <div class="stat-box">
+            <div class="stat-val" id="kgPerLiterDisp">--</div>
+            <div class="stat-lbl">kg / Liter</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val" id="lbsPerGalDisp">--</div>
+            <div class="stat-lbl">lbs / US Gal</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val" id="lbsPerLiterDisp">--</div>
+            <div class="stat-lbl">lbs / Liter</div>
+          </div>
+        </div>
+
+        <hr style="border:none; border-top:1px solid var(--border); margin:14px 0 12px;" />
+        <div class="section-title" style="margin-bottom:8px;">B. Target Fill Weight Calculator (Filling Jugs)</div>
         <div class="row">
           <div>
-            <label for="fuelTemp">Fuel Temp</label>
-            <div class="temp-wrap">
-              <input type="number" id="fuelTemp" step="1" value="60" inputmode="decimal" />
-              <button type="button" class="temp-toggle" id="tempUnitBtn">°F</button>
-            </div>
+            <label for="targetLiters">Target Liters to Put in Jug</label>
+            <input type="number" id="targetLiters" step="0.5" placeholder="e.g. 20" inputmode="decimal" />
           </div>
           <div>
-            <label>Temp-Adjusted SG</label>
+            <label>Required Net Fuel Weight</label>
             <div class="meta-bar" style="margin-top:0; height:42px;">
-              <span>Live SG:</span>
-              <strong id="adjustedSgDisplay">0.7900</strong>
+              <strong id="targetWeightOut">--</strong>
             </div>
           </div>
         </div>
-      </div>
+        <div class="meta-bar" id="targetGrossOut">Target Scale Reading (Gross): --</div>
 
-      <div class="row">
-        <div>
-          <label for="fuelIn" id="fuelInLbl">Fuel Put In (L)</label>
-          <input type="number" id="fuelIn" step="0.1" inputmode="decimal" placeholder="0.0" />
+        <div class="btn-row">
+          <button type="button" class="action-btn btn-clear" onclick="clearJugInputs()">Reset Jug</button>
+          <button type="button" class="action-btn btn-apply" id="applySgBtn">Use This SG in Burn Calc</button>
         </div>
-        <div>
-          <label for="fuelOut" id="fuelOutLbl">Fuel Pumped Out (L)</label>
-          <input type="number" id="fuelOut" step="0.1" inputmode="decimal" placeholder="0.0" />
+        <div class="note-box">
+          Tip: Weigh a clean reference jug or check your tower/rig scale with known liters to get exact batch SG, then use Target Liters to fill jugs by weight without guessing.
         </div>
       </div>
-
-      <div class="row">
-        <div>
-          <label for="lapsRun">Laps Completed</label>
-          <input type="number" id="lapsRun" step="1" inputmode="numeric" placeholder="0" />
-        </div>
-        <div>
-          <label for="tankCap" id="tankCapLbl">Tank Capacity (L) <span style="opacity:.6">(Opt)</span></label>
-          <input type="number" id="tankCap" step="0.5" inputmode="decimal" placeholder="100" />
-        </div>
-      </div>
-    </div>
-
-    <div class="card results">
-      <div class="hero-stat">
-        <div class="hero-val" id="lPerLap">0.00 L</div>
-        <div class="hero-sub" id="weightPerLap">0.00 kg / lap · 0.00 lbs / lap</div>
-        <div class="hero-lbl">ESTIMATED FUEL USED PER LAP</div>
-      </div>
-      <div class="grid-stats">
-        <div class="stat-box">
-          <div class="stat-val" id="netBurned">0.0 L</div>
-          <div class="stat-lbl">Net Burned</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-val" id="lPerKm">0.00</div>
-          <div class="stat-lbl">Liters / km</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-val" id="estStint">--</div>
-          <div class="stat-lbl">Max Laps/Tank</div>
-        </div>
-      </div>
-      <div class="btn-row">
-        <button type="button" class="action-btn btn-clear" onclick="clearInputs()">Reset</button>
-        <button type="button" class="action-btn btn-save" onclick="saveLog()">Log Session</button>
-      </div>
-    </div>
-
-    <div class="card" id="historyCard" style="display:none;">
-      <label>Session Log</label>
-      <div id="historyList"></div>
     </div>
   </div>
 
@@ -275,6 +426,7 @@
 
     let activeUnit = "L";
     let tempUnit = "F";
+    let jugTempUnit = "F";
 
     const trackSelect = document.getElementById("trackSelect");
     const customFields = document.getElementById("customTrackFields");
@@ -294,14 +446,39 @@
       trackSelect.appendChild(opt);
     });
 
+    // Tab switching
+    const tabBurn = document.getElementById("tabBurn");
+    const tabJugSg = document.getElementById("tabJugSg");
+    const burnView = document.getElementById("burnView");
+    const jugSgView = document.getElementById("jugSgView");
+
+    tabBurn.addEventListener("click", () => {
+      tabBurn.classList.add("active");
+      tabJugSg.classList.remove("active");
+      burnView.style.display = "block";
+      jugSgView.style.display = "none";
+    });
+
+    tabJugSg.addEventListener("click", () => {
+      tabJugSg.classList.add("active");
+      tabBurn.classList.remove("active");
+      burnView.style.display = "none";
+      jugSgView.style.display = "block";
+      calculateJugSg();
+    });
+
+    function getBeta() {
+      const selectedOpt = fuelPreset.options[fuelPreset.selectedIndex];
+      return parseFloat(selectedOpt.dataset.beta) || 0.00060;
+    }
+
     function getAdjustedSG() {
       const baseSg = parseFloat(baseSgInput.value) || 0.790;
       const rawTemp = parseFloat(fuelTempInput.value);
       if (isNaN(rawTemp)) return baseSg;
 
       const tempF = tempUnit === "F" ? rawTemp : (rawTemp * 9 / 5) + 32;
-      const selectedOpt = fuelPreset.options[fuelPreset.selectedIndex];
-      const beta = parseFloat(selectedOpt.dataset.beta) || 0.00060;
+      const beta = getBeta();
 
       const adjSg = baseSg - (beta * (tempF - 60));
       return Math.max(0.5, adjSg);
@@ -368,8 +545,6 @@
       const kgPerLap = lPerLap * sg;
       const lbsPerLap = kgPerLap * 2.20462;
 
-      // If user hasn't entered laps yet, allow quick comparison based on track length
-      // (e.g., 1 lap default preview when switching tracks with fuel entered, or show L/km)
       const totalKm = laps * km;
       const lPerKm = totalKm > 0 ? netL / totalKm : 0;
       const maxLaps = (tankL > 0 && lPerLap > 0) ? (tankL / lPerLap).toFixed(1) : "--";
@@ -409,6 +584,110 @@
       document.getElementById("historyCard").style.display = "block";
     }
 
+    // Jug SG & Target Fill Calculation
+    let lastMeasuredBaseSg = null;
+    let lastMeasuredLiveSg = null;
+
+    function calculateJugSg() {
+      const sampleVol = parseFloat(document.getElementById("jugSampleVol").value) || 0;
+      const sampleVolUnit = document.getElementById("jugSampleVolUnit").value;
+      const tareRaw = parseFloat(document.getElementById("jugTareWeight").value) || 0;
+      const grossRaw = parseFloat(document.getElementById("jugGrossWeight").value) || 0;
+      const scaleUnit = document.getElementById("jugScaleUnit").value;
+      const rawTemp = parseFloat(document.getElementById("jugTemp").value);
+      const targetLiters = parseFloat(document.getElementById("targetLiters").value) || 0;
+
+      const netWeightRaw = Math.max(0, grossRaw - tareRaw);
+      document.getElementById("jugNetWeightDisp").textContent = `${netWeightRaw.toFixed(2)} ${scaleUnit}`;
+
+      const netKg = scaleUnit === "kg" ? netWeightRaw : netWeightRaw * 0.45359237;
+      const sampleLiters = sampleVolUnit === "L" ? sampleVol : sampleVol * 3.785411784;
+
+      const beta = getBeta();
+      const tempF = isNaN(rawTemp) ? 60 : (jugTempUnit === "F" ? rawTemp : (rawTemp * 9 / 5) + 32);
+
+      let liveSg = parseFloat(baseSgInput.value) || 0.790;
+      let hasMeasured = false;
+
+      if (sampleLiters > 0 && netKg > 0 && grossRaw > 0) {
+        liveSg = netKg / sampleLiters;
+        hasMeasured = true;
+        lastMeasuredLiveSg = liveSg;
+        // Back-calculate 60°F base SG from measured SG at tempF
+        const baseSgAt60 = liveSg + (beta * (tempF - 60));
+        lastMeasuredBaseSg = Math.max(0.5, baseSgAt60);
+
+        document.getElementById("measuredSgVal").textContent = liveSg.toFixed(4);
+        document.getElementById("jugNormSgDisp").textContent = lastMeasuredBaseSg.toFixed(4);
+        document.getElementById("jugDensitySub").textContent = `Measured @ ${isNaN(rawTemp) ? 60 : rawTemp}°${jugTempUnit} (${sampleVol} ${sampleVolUnit} = ${netWeightRaw.toFixed(2)} ${scaleUnit})`;
+      } else {
+        lastMeasuredLiveSg = null;
+        lastMeasuredBaseSg = null;
+        document.getElementById("measuredSgVal").textContent = "--";
+        document.getElementById("jugNormSgDisp").textContent = "--";
+        document.getElementById("jugDensitySub").textContent = "Enter gross fuel weight to calculate SG";
+      }
+
+      const kgPerLiter = liveSg;
+      const lbsPerLiter = kgPerLiter * 2.20462262;
+      const lbsPerGal = lbsPerLiter * 3.785411784;
+
+      document.getElementById("kgPerLiterDisp").textContent = kgPerLiter.toFixed(3);
+      document.getElementById("lbsPerGalDisp").textContent = lbsPerGal.toFixed(2);
+      document.getElementById("lbsPerLiterDisp").textContent = lbsPerLiter.toFixed(3);
+
+      // Target fill weight for jugs
+      if (targetLiters > 0) {
+        const reqNetKg = targetLiters * kgPerLiter;
+        const reqNetLbs = reqNetKg * 2.20462262;
+        const reqNetInScaleUnit = scaleUnit === "kg" ? reqNetKg : reqNetLbs;
+        const reqGrossInScaleUnit = tareRaw + reqNetInScaleUnit;
+
+        document.getElementById("targetWeightOut").textContent = `${reqNetKg.toFixed(2)} kg / ${reqNetLbs.toFixed(2)} lbs`;
+        document.getElementById("targetGrossOut").innerHTML =
+          `<span>Gross Scale Target (incl. ${tareRaw.toFixed(2)} ${scaleUnit} tare):</span><strong>${reqGrossInScaleUnit.toFixed(2)} ${scaleUnit}</strong>`;
+      } else {
+        document.getElementById("targetWeightOut").textContent = "--";
+        document.getElementById("targetGrossOut").innerHTML = `<span>Gross Scale Target:</span><strong>--</strong>`;
+      }
+    }
+
+    function clearJugInputs() {
+      ["jugTareWeight", "jugGrossWeight", "targetLiters"].forEach(id => {
+        document.getElementById(id).value = id === "jugTareWeight" ? "0" : "";
+      });
+      calculateJugSg();
+    }
+
+    document.getElementById("applySgBtn").addEventListener("click", () => {
+      if (lastMeasuredBaseSg !== null) {
+        baseSgInput.value = lastMeasuredBaseSg.toFixed(4);
+        fuelPreset.value = "custom";
+        const rawTemp = parseFloat(document.getElementById("jugTemp").value);
+        if (!isNaN(rawTemp)) {
+          fuelTempInput.value = rawTemp;
+          tempUnit = jugTempUnit;
+          tempUnitBtn.textContent = jugTempUnit === "F" ? "°F" : "°C";
+        }
+        calculate();
+        tabBurn.click();
+      }
+    });
+
+    document.getElementById("jugTempUnitBtn").addEventListener("click", () => {
+      const cur = parseFloat(document.getElementById("jugTemp").value);
+      if (jugTempUnit === "F") {
+        jugTempUnit = "C";
+        document.getElementById("jugTempUnitBtn").textContent = "°C";
+        if (!isNaN(cur)) document.getElementById("jugTemp").value = ((cur - 32) * 5 / 9).toFixed(1);
+      } else {
+        jugTempUnit = "F";
+        document.getElementById("jugTempUnitBtn").textContent = "°F";
+        if (!isNaN(cur)) document.getElementById("jugTemp").value = ((cur * 9 / 5) + 32).toFixed(0);
+      }
+      calculateJugSg();
+    });
+
     document.querySelectorAll(".unit-btn").forEach(btn => {
       btn.addEventListener("click", () => setUnit(btn.dataset.unit));
     });
@@ -431,6 +710,7 @@
       if (fuelPreset.value !== "custom") {
         baseSgInput.value = fuelPreset.value;
         calculate();
+        calculateJugSg();
       } else {
         baseSgInput.focus();
       }
@@ -439,14 +719,19 @@
     baseSgInput.addEventListener("input", () => {
       fuelPreset.value = "custom";
       calculate();
+      calculateJugSg();
     });
 
-    // Automatically recalculate on both change and live typing in track selection / custom miles
     trackSelect.addEventListener("change", updateTrackInfo);
     trackSelect.addEventListener("input", updateTrackInfo);
     ["fuelIn", "fuelOut", "lapsRun", "tankCap", "customMiles", "fuelTemp"].forEach(id => {
       document.getElementById(id).addEventListener("input", calculate);
       document.getElementById(id).addEventListener("change", calculate);
+    });
+
+    ["jugSampleVol", "jugSampleVolUnit", "jugTareWeight", "jugGrossWeight", "jugScaleUnit", "jugTemp", "targetLiters"].forEach(id => {
+      document.getElementById(id).addEventListener("input", calculateJugSg);
+      document.getElementById(id).addEventListener("change", calculateJugSg);
     });
 
     if ("serviceWorker" in navigator) {
@@ -456,6 +741,7 @@
     }
 
     updateTrackInfo();
+    calculateJugSg();
   </script>
 </body>
 </html>
