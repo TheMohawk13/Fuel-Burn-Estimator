@@ -6,9 +6,9 @@
   <meta name="theme-color" content="#0f1115" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Pit Wall Fuel Calculator" />
+  <meta name="apple-mobile-web-app-title" content="Fuel Burn Estimator" />
   <link rel="manifest" href="manifest.json" />
-  <title>Fuel Calculator</title>
+  <title>Fuel Burn Estimator</title>
   <style>
     :root {
       --bg: #0f1115;
@@ -18,6 +18,8 @@
       --text: #f3f4f6;
       --muted: #9ca3af;
       --good: #10b981;
+      --highlight-bg: rgba(16, 185, 129, 0.14);
+      --highlight-border: #10b981;
     }
     * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body {
@@ -60,9 +62,9 @@
       margin-bottom: 14px;
     }
     .section-title {
-      font-size: 0.9rem;
+      font-size: 0.95rem;
       font-weight: 700;
-      margin: 0 0 10px;
+      margin: 0 0 6px;
       color: var(--text);
     }
     label { display: block; font-size: 0.75rem; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -140,6 +142,56 @@
     .stat-box { background: #0f1115; padding: 10px 6px; border-radius: 8px; }
     .stat-val { font-size: 1rem; font-weight: 700; }
     .stat-lbl { font-size: 0.68rem; color: var(--muted); margin-top: 2px; }
+
+    /* High-visibility final value callout boxes */
+    .callout-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 4px;
+      margin-bottom: 12px;
+    }
+    .callout-box {
+      background: var(--highlight-bg);
+      border: 2px solid var(--highlight-border);
+      border-radius: 12px;
+      padding: 14px 10px;
+      text-align: center;
+      box-shadow: 0 0 18px rgba(16, 185, 129, 0.16);
+    }
+    .callout-box.primary {
+      background: rgba(255, 46, 126, 0.15);
+      border-color: var(--accent);
+      box-shadow: 0 0 20px rgba(255, 46, 126, 0.2);
+    }
+    .callout-lbl {
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .callout-val {
+      font-size: 1.75rem;
+      font-weight: 900;
+      color: #fff;
+      line-height: 1.15;
+    }
+    .callout-box.primary .callout-val {
+      color: #ff6aa2;
+      font-size: 1.9rem;
+    }
+    .callout-box.green .callout-val {
+      color: #34d399;
+    }
+    .callout-sub {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 4px;
+      font-weight: 600;
+    }
+
     .btn-row { display: flex; gap: 8px; margin-top: 12px; }
     .action-btn {
       flex: 1;
@@ -168,18 +220,18 @@
       border-left: 3px solid var(--accent);
       padding: 8px 10px;
       border-radius: 6px;
-      margin-top: 8px;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
   <div class="app">
-    <h1>FUEL BURN &amp; SG TOOLKIT</h1>
-    <div class="sub">VP E100 burn estimator &amp; jug-fill SG / scale calculator</div>
+    <h1>FUEL BURN ESTIMATOR</h1>
+    <div class="sub">VP E100 burn estimator &amp; jug scale-to-liters calculator</div>
 
     <div class="mode-nav">
       <button type="button" class="nav-btn active" id="tabBurn">1. Burn / Lap Calc</button>
-      <button type="button" class="nav-btn" id="tabJugSg">2. Jug Fill &amp; SG Calc</button>
+      <button type="button" class="nav-btn" id="tabJugSg">2. Jug Liters &amp; Fill</button>
     </div>
 
     <!-- TAB 1: BURN CALCULATOR -->
@@ -301,47 +353,30 @@
       </div>
     </div>
 
-    <!-- TAB 2: JUG FILL & SG CALCULATOR -->
+    <!-- TAB 2: JUG LITERS & TARGET FILL CALCULATOR -->
     <div id="jugSgView" style="display:none;">
       <div class="card">
-        <div class="section-title">A. Measure SG from Jug / Sample</div>
-        <div class="sub" style="margin-bottom:12px;">Weigh a known volume (or known liters/gallons of fuel) to get actual SG</div>
+        <div class="section-title">A. How Much Fuel Is In a Jug? (Scale → Liters)</div>
+        <div class="sub" style="margin-bottom:12px;">Enter empty jug tare weight, gross weight on scale (kg), and SG</div>
 
         <div class="row">
           <div>
-            <label for="jugSampleVol">Known Fuel Volume</label>
-            <input type="number" id="jugSampleVol" step="0.1" value="20" inputmode="decimal" />
+            <label for="jugTareWeight">Empty Jug Tare (kg)</label>
+            <input type="number" id="jugTareWeight" step="0.01" value="0" inputmode="decimal" placeholder="e.g. 1.45" />
           </div>
           <div>
-            <label for="jugSampleVolUnit">Volume Unit</label>
-            <select id="jugSampleVolUnit">
-              <option value="L" selected>Liters (L)</option>
-              <option value="gal">US Gallons (gal)</option>
-            </select>
+            <label for="jugGrossWeight">Gross Weight (kg)</label>
+            <input type="number" id="jugGrossWeight" step="0.01" placeholder="e.g. 17.25" inputmode="decimal" />
           </div>
         </div>
 
         <div class="row">
           <div>
-            <label for="jugTareWeight">Empty Jug / Tare Weight</label>
-            <input type="number" id="jugTareWeight" step="0.01" value="0" inputmode="decimal" />
+            <label for="jugSgInput">Fuel SG (Adjustable)</label>
+            <input type="number" id="jugSgInput" step="0.001" value="0.790" inputmode="decimal" />
           </div>
           <div>
-            <label for="jugGrossWeight">Gross Weight (Jug + Fuel)</label>
-            <input type="number" id="jugGrossWeight" step="0.01" placeholder="e.g. 15.80" inputmode="decimal" />
-          </div>
-        </div>
-
-        <div class="row">
-          <div>
-            <label for="jugScaleUnit">Scale Weight Unit</label>
-            <select id="jugScaleUnit">
-              <option value="kg" selected>Kilograms (kg)</option>
-              <option value="lbs">Pounds (lbs)</option>
-            </select>
-          </div>
-          <div>
-            <label for="jugTemp">Fuel Temp at Fill</label>
+            <label for="jugTemp">Fuel Temp (Opt)</label>
             <div class="temp-wrap">
               <input type="number" id="jugTemp" step="1" value="60" inputmode="decimal" />
               <button type="button" class="temp-toggle" id="jugTempUnitBtn">°F</button>
@@ -350,58 +385,64 @@
         </div>
 
         <div class="meta-bar">
-          <span>Net Fuel Weight:</span>
-          <strong id="jugNetWeightDisp">0.00 kg</strong>
+          <span>Temp-Adjusted Live SG:</span>
+          <strong id="jugLiveSgDisp">0.7900</strong>
         </div>
-        <div class="meta-bar">
-          <span>60°F Normalized SG:</span>
-          <strong id="jugNormSgDisp">--</strong>
+
+        <!-- HIGH-VISIBILITY CALCULATED OUTPUTS FOR SECTION A -->
+        <div class="callout-grid">
+          <div class="callout-box primary">
+            <div class="callout-lbl">Fuel In Jug</div>
+            <div class="callout-val" id="jugLitersOut">0.00 L</div>
+            <div class="callout-sub" id="jugGalOut">0.00 US gal</div>
+          </div>
+          <div class="callout-box green">
+            <div class="callout-lbl">Net Fuel Weight</div>
+            <div class="callout-val" id="jugNetKgOut">0.00 kg</div>
+            <div class="callout-sub" id="jugNetLbsOut">0.00 lbs</div>
+          </div>
         </div>
       </div>
 
       <div class="card results">
-        <div class="hero-stat">
-          <div class="hero-val" id="measuredSgVal">--</div>
-          <div class="hero-sub" id="jugDensitySub">Enter gross fuel weight to calculate SG</div>
-          <div class="hero-lbl">MEASURED SPECIFIC GRAVITY @ TEMP</div>
-        </div>
-        <div class="grid-stats">
-          <div class="stat-box">
-            <div class="stat-val" id="kgPerLiterDisp">--</div>
-            <div class="stat-lbl">kg / Liter</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-val" id="lbsPerGalDisp">--</div>
-            <div class="stat-lbl">lbs / US Gal</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-val" id="lbsPerLiterDisp">--</div>
-            <div class="stat-lbl">lbs / Liter</div>
-          </div>
-        </div>
+        <div class="section-title">B. Target Fill Calculator (Filling Jugs by Scale)</div>
+        <div class="sub" style="margin-bottom:12px;">Enter how many liters you want to put in the jug</div>
 
-        <hr style="border:none; border-top:1px solid var(--border); margin:14px 0 12px;" />
-        <div class="section-title" style="margin-bottom:8px;">B. Target Fill Weight Calculator (Filling Jugs)</div>
         <div class="row">
           <div>
-            <label for="targetLiters">Target Liters to Put in Jug</label>
+            <label for="targetLiters">Target Liters to Put In</label>
             <input type="number" id="targetLiters" step="0.5" placeholder="e.g. 20" inputmode="decimal" />
           </div>
           <div>
-            <label>Required Net Fuel Weight</label>
+            <label>Active SG Used</label>
             <div class="meta-bar" style="margin-top:0; height:42px;">
-              <strong id="targetWeightOut">--</strong>
+              <span>SG:</span>
+              <strong id="targetActiveSgDisp">0.7900</strong>
             </div>
           </div>
         </div>
-        <div class="meta-bar" id="targetGrossOut">Target Scale Reading (Gross): --</div>
+
+        <!-- BIG HIGHLIGHTED FINAL VALUES FOR SECTION B -->
+        <div class="callout-grid">
+          <div class="callout-box primary">
+            <div class="callout-lbl">Gross Scale Target</div>
+            <div class="callout-val" id="targetGrossKgOut">--</div>
+            <div class="callout-sub" id="targetGrossSub">Incl. 0.00 kg tare</div>
+          </div>
+          <div class="callout-box green">
+            <div class="callout-lbl">Required Net Fuel</div>
+            <div class="callout-val" id="targetNetKgOut">--</div>
+            <div class="callout-sub" id="targetNetLbsOut">-- lbs net</div>
+          </div>
+        </div>
 
         <div class="btn-row">
           <button type="button" class="action-btn btn-clear" onclick="clearJugInputs()">Reset Jug</button>
-          <button type="button" class="action-btn btn-apply" id="applySgBtn">Use This SG in Burn Calc</button>
+          <button type="button" class="action-btn btn-apply" id="applySgBtn">Send SG to Burn Calc</button>
         </div>
         <div class="note-box">
-          Tip: Weigh a clean reference jug or check your tower/rig scale with known liters to get exact batch SG, then use Target Liters to fill jugs by weight without guessing.
+          <strong>Section A:</strong> Weigh jug on scale (kg) minus tare → shows exact <strong>Liters in Jug</strong>.<br/>
+          <strong>Section B:</strong> Type desired Liters → shows exact <strong>Gross Scale Target (kg)</strong> to stop filling at.
         </div>
       </div>
     </div>
@@ -464,7 +505,7 @@
       tabBurn.classList.remove("active");
       burnView.style.display = "none";
       jugSgView.style.display = "block";
-      calculateJugSg();
+      calculateJug();
     });
 
     function getBeta() {
@@ -584,84 +625,66 @@
       document.getElementById("historyCard").style.display = "block";
     }
 
-    // Jug SG & Target Fill Calculation
-    let lastMeasuredBaseSg = null;
-    let lastMeasuredLiveSg = null;
-
-    function calculateJugSg() {
-      const sampleVol = parseFloat(document.getElementById("jugSampleVol").value) || 0;
-      const sampleVolUnit = document.getElementById("jugSampleVolUnit").value;
-      const tareRaw = parseFloat(document.getElementById("jugTareWeight").value) || 0;
-      const grossRaw = parseFloat(document.getElementById("jugGrossWeight").value) || 0;
-      const scaleUnit = document.getElementById("jugScaleUnit").value;
+    // TAB 2: JUG LITERS & TARGET FILL CALCULATION
+    function getJugLiveSg() {
+      const baseSg = parseFloat(document.getElementById("jugSgInput").value) || 0.790;
       const rawTemp = parseFloat(document.getElementById("jugTemp").value);
+      if (isNaN(rawTemp)) return baseSg;
+
+      const tempF = jugTempUnit === "F" ? rawTemp : (rawTemp * 9 / 5) + 32;
+      const beta = getBeta();
+      return Math.max(0.5, baseSg - (beta * (tempF - 60)));
+    }
+
+    function calculateJug() {
+      const tareKg = parseFloat(document.getElementById("jugTareWeight").value) || 0;
+      const grossKg = parseFloat(document.getElementById("jugGrossWeight").value) || 0;
       const targetLiters = parseFloat(document.getElementById("targetLiters").value) || 0;
 
-      const netWeightRaw = Math.max(0, grossRaw - tareRaw);
-      document.getElementById("jugNetWeightDisp").textContent = `${netWeightRaw.toFixed(2)} ${scaleUnit}`;
+      const liveSg = getJugLiveSg();
+      document.getElementById("jugLiveSgDisp").textContent = liveSg.toFixed(4);
+      document.getElementById("targetActiveSgDisp").textContent = liveSg.toFixed(4);
 
-      const netKg = scaleUnit === "kg" ? netWeightRaw : netWeightRaw * 0.45359237;
-      const sampleLiters = sampleVolUnit === "L" ? sampleVol : sampleVol * 3.785411784;
+      // Section A: Scale kg -> Liters in Jug
+      const netKg = grossKg > 0 ? Math.max(0, grossKg - tareKg) : 0;
+      const netLbs = netKg * 2.20462262;
+      const litersInJug = liveSg > 0 ? netKg / liveSg : 0;
+      const galInJug = litersInJug / 3.785411784;
 
-      const beta = getBeta();
-      const tempF = isNaN(rawTemp) ? 60 : (jugTempUnit === "F" ? rawTemp : (rawTemp * 9 / 5) + 32);
+      document.getElementById("jugLitersOut").textContent = `${litersInJug.toFixed(2)} L`;
+      document.getElementById("jugGalOut").textContent = `${galInJug.toFixed(2)} US gal`;
+      document.getElementById("jugNetKgOut").textContent = `${netKg.toFixed(2)} kg`;
+      document.getElementById("jugNetLbsOut").textContent = `${netLbs.toFixed(2)} lbs`;
 
-      let liveSg = parseFloat(baseSgInput.value) || 0.790;
-      let hasMeasured = false;
-
-      if (sampleLiters > 0 && netKg > 0 && grossRaw > 0) {
-        liveSg = netKg / sampleLiters;
-        hasMeasured = true;
-        lastMeasuredLiveSg = liveSg;
-        // Back-calculate 60°F base SG from measured SG at tempF
-        const baseSgAt60 = liveSg + (beta * (tempF - 60));
-        lastMeasuredBaseSg = Math.max(0.5, baseSgAt60);
-
-        document.getElementById("measuredSgVal").textContent = liveSg.toFixed(4);
-        document.getElementById("jugNormSgDisp").textContent = lastMeasuredBaseSg.toFixed(4);
-        document.getElementById("jugDensitySub").textContent = `Measured @ ${isNaN(rawTemp) ? 60 : rawTemp}°${jugTempUnit} (${sampleVol} ${sampleVolUnit} = ${netWeightRaw.toFixed(2)} ${scaleUnit})`;
-      } else {
-        lastMeasuredLiveSg = null;
-        lastMeasuredBaseSg = null;
-        document.getElementById("measuredSgVal").textContent = "--";
-        document.getElementById("jugNormSgDisp").textContent = "--";
-        document.getElementById("jugDensitySub").textContent = "Enter gross fuel weight to calculate SG";
-      }
-
-      const kgPerLiter = liveSg;
-      const lbsPerLiter = kgPerLiter * 2.20462262;
-      const lbsPerGal = lbsPerLiter * 3.785411784;
-
-      document.getElementById("kgPerLiterDisp").textContent = kgPerLiter.toFixed(3);
-      document.getElementById("lbsPerGalDisp").textContent = lbsPerGal.toFixed(2);
-      document.getElementById("lbsPerLiterDisp").textContent = lbsPerLiter.toFixed(3);
-
-      // Target fill weight for jugs
+      // Section B: Target Liters -> Required Net Fuel Weight & Gross Scale Target
       if (targetLiters > 0) {
-        const reqNetKg = targetLiters * kgPerLiter;
+        const reqNetKg = targetLiters * liveSg;
         const reqNetLbs = reqNetKg * 2.20462262;
-        const reqNetInScaleUnit = scaleUnit === "kg" ? reqNetKg : reqNetLbs;
-        const reqGrossInScaleUnit = tareRaw + reqNetInScaleUnit;
+        const grossTargetKg = tareKg + reqNetKg;
+        const grossTargetLbs = grossTargetKg * 2.20462262;
 
-        document.getElementById("targetWeightOut").textContent = `${reqNetKg.toFixed(2)} kg / ${reqNetLbs.toFixed(2)} lbs`;
-        document.getElementById("targetGrossOut").innerHTML =
-          `<span>Gross Scale Target (incl. ${tareRaw.toFixed(2)} ${scaleUnit} tare):</span><strong>${reqGrossInScaleUnit.toFixed(2)} ${scaleUnit}</strong>`;
+        document.getElementById("targetGrossKgOut").textContent = `${grossTargetKg.toFixed(2)} kg`;
+        document.getElementById("targetGrossSub").textContent = `${grossTargetLbs.toFixed(2)} lbs (incl. ${tareKg.toFixed(2)} kg tare)`;
+        document.getElementById("targetNetKgOut").textContent = `${reqNetKg.toFixed(2)} kg`;
+        document.getElementById("targetNetLbsOut").textContent = `${reqNetLbs.toFixed(2)} lbs net`;
       } else {
-        document.getElementById("targetWeightOut").textContent = "--";
-        document.getElementById("targetGrossOut").innerHTML = `<span>Gross Scale Target:</span><strong>--</strong>`;
+        document.getElementById("targetGrossKgOut").textContent = "--";
+        document.getElementById("targetGrossSub").textContent = `Incl. ${tareKg.toFixed(2)} kg tare`;
+        document.getElementById("targetNetKgOut").textContent = "--";
+        document.getElementById("targetNetLbsOut").textContent = "-- lbs net";
       }
     }
 
     function clearJugInputs() {
-      ["jugTareWeight", "jugGrossWeight", "targetLiters"].forEach(id => {
-        document.getElementById(id).value = id === "jugTareWeight" ? "0" : "";
-      });
-      calculateJugSg();
+      document.getElementById("jugGrossWeight").value = "";
+      document.getElementById("targetLiters").value = "";
+      calculateJug();
     }
 
     document.getElementById("applySgBtn").addEventListener("click", () => {
-      if (lastMeasuredBaseSg !== null) {
-        baseSgInput.value = lastMeasuredBaseSg.toFixed(4);
+      const jugBaseSg = parseFloat(document.getElementById("jugSgInput").value);
+      if (!isNaN(jugBaseSg) && jugBaseSg > 0) {
+        baseSgInput.value = jugBaseSg.toFixed(4);
         fuelPreset.value = "custom";
         const rawTemp = parseFloat(document.getElementById("jugTemp").value);
         if (!isNaN(rawTemp)) {
@@ -685,7 +708,7 @@
         document.getElementById("jugTempUnitBtn").textContent = "°F";
         if (!isNaN(cur)) document.getElementById("jugTemp").value = ((cur * 9 / 5) + 32).toFixed(0);
       }
-      calculateJugSg();
+      calculateJug();
     });
 
     document.querySelectorAll(".unit-btn").forEach(btn => {
@@ -709,8 +732,9 @@
     fuelPreset.addEventListener("change", () => {
       if (fuelPreset.value !== "custom") {
         baseSgInput.value = fuelPreset.value;
+        document.getElementById("jugSgInput").value = fuelPreset.value;
         calculate();
-        calculateJugSg();
+        calculateJug();
       } else {
         baseSgInput.focus();
       }
@@ -718,8 +742,9 @@
 
     baseSgInput.addEventListener("input", () => {
       fuelPreset.value = "custom";
+      document.getElementById("jugSgInput").value = baseSgInput.value;
       calculate();
-      calculateJugSg();
+      calculateJug();
     });
 
     trackSelect.addEventListener("change", updateTrackInfo);
@@ -729,9 +754,9 @@
       document.getElementById(id).addEventListener("change", calculate);
     });
 
-    ["jugSampleVol", "jugSampleVolUnit", "jugTareWeight", "jugGrossWeight", "jugScaleUnit", "jugTemp", "targetLiters"].forEach(id => {
-      document.getElementById(id).addEventListener("input", calculateJugSg);
-      document.getElementById(id).addEventListener("change", calculateJugSg);
+    ["jugTareWeight", "jugGrossWeight", "jugSgInput", "jugTemp", "targetLiters"].forEach(id => {
+      document.getElementById(id).addEventListener("input", calculateJug);
+      document.getElementById(id).addEventListener("change", calculateJug);
     });
 
     if ("serviceWorker" in navigator) {
@@ -741,7 +766,7 @@
     }
 
     updateTrackInfo();
-    calculateJugSg();
+    calculateJug();
   </script>
 </body>
 </html>
