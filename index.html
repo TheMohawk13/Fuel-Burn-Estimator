@@ -1,772 +1,637 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="theme-color" content="#0f1115" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Fuel Burn Estimator" />
-  <link rel="manifest" href="manifest.json" />
-  <title>Fuel Burn Estimator</title>
-  <style>
-    :root {
-      --bg: #0f1115;
-      --card: #181b22;
-      --border: #2a2f3a;
-      --accent: #ff2e7e;
-      --text: #f3f4f6;
-      --muted: #9ca3af;
-      --good: #10b981;
-      --highlight-bg: rgba(16, 185, 129, 0.14);
-      --highlight-border: #10b981;
-    }
-    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      padding: 16px;
-      display: flex;
-      justify-content: center;
-    }
-    .app { width: 100%; max-width: 460px; }
-    h1 { font-size: 1.25rem; margin: 0 0 4px; letter-spacing: 0.5px; }
-    .sub { color: var(--muted); font-size: 0.85rem; margin-bottom: 14px; }
-    .mode-nav {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-    .nav-btn {
-      padding: 10px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: var(--card);
-      color: var(--muted);
-      font-weight: 700;
-      font-size: 0.85rem;
-      cursor: pointer;
-    }
-    .nav-btn.active {
-      background: #221621;
-      border-color: var(--accent);
-      color: #fff;
-    }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 14px;
-    }
-    .section-title {
-      font-size: 0.95rem;
-      font-weight: 700;
-      margin: 0 0 6px;
-      color: var(--text);
-    }
-    label { display: block; font-size: 0.75rem; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-    select, input {
-      width: 100%;
-      padding: 11px 12px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: #0f1115;
-      color: var(--text);
-      font-size: 0.95rem;
-      margin-bottom: 12px;
-    }
-    select:focus, input:focus { outline: none; border-color: var(--accent); }
-    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .unit-tabs {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 6px;
-      margin-bottom: 12px;
-    }
-    .unit-btn {
-      padding: 9px 4px;
-      background: #0f1115;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--muted);
-      font-size: 0.8rem;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .unit-btn.active {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: #fff;
-    }
-    .meta-bar {
-      font-size: 0.82rem;
-      color: var(--muted);
-      background: #12141a;
-      padding: 8px 12px;
-      border-radius: 8px;
-      margin-top: -4px;
-      margin-bottom: 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .meta-bar strong { color: var(--text); }
-    .temp-wrap {
-      display: flex;
-      gap: 4px;
-      margin-bottom: 12px;
-    }
-    .temp-wrap input { margin-bottom: 0; }
-    .temp-toggle {
-      padding: 0 12px;
-      background: #262a34;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--text);
-      font-weight: 700;
-      font-size: 0.85rem;
-      cursor: pointer;
-    }
-    .results {
-      background: linear-gradient(145deg, #1c1f28, #14171f);
-      border: 1px solid var(--accent);
-    }
-    .hero-stat { text-align: center; padding: 6px 0 14px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
-    .hero-val { font-size: 2.5rem; font-weight: 800; color: var(--accent); line-height: 1.1; }
-    .hero-sub { font-size: 0.85rem; color: var(--text); margin-top: 4px; font-weight: 500; }
-    .hero-lbl { font-size: 0.75rem; color: var(--muted); margin-top: 4px; letter-spacing: 0.5px; }
-    .grid-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; text-align: center; }
-    .stat-box { background: #0f1115; padding: 10px 6px; border-radius: 8px; }
-    .stat-val { font-size: 1rem; font-weight: 700; }
-    .stat-lbl { font-size: 0.68rem; color: var(--muted); margin-top: 2px; }
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fuel Burn Estimator</title>
+<meta name="theme-color" content="#1b1c1e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Fuel Burn Estimator">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&display=swap">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#eceae5;--surface:#fbfaf8;--text:#1b1c1e;--muted:#66686c;--line:#d3d0c8;--accent:#1b1c1e;--accent-text:#fbfaf8;--danger:#b3261e;
+--vol:#f2c200;--wt:#2d7fd3;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17181a;--surface:#222427;--text:#ecebe7;--muted:#9a9ca1;--line:#383b3f;--accent:#ecebe7;--accent-text:#17181a;--danger:#ff8a80;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#17181a;--surface:#222427;--text:#ecebe7;--muted:#9a9ca1;--line:#383b3f;--accent:#ecebe7;--accent-text:#17181a;--danger:#ff8a80;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:640px;margin:0 auto;padding:20px 16px 48px}
+h1,h2,.num{font-family:"Barlow Condensed","Arial Narrow",Roboto,system-ui,sans-serif;font-weight:700;letter-spacing:.01em}
+h1{font-size:2rem;margin:0 0 2px}
+h2{font-size:1.25rem;margin:0 0 10px}
+.sub{color:var(--muted);margin:0 0 14px}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.seg.c2{grid-template-columns:repeat(2,1fr)}
+.seg.c4{grid-template-columns:repeat(4,1fr)}
+.seg button{display:flex;flex-direction:column;align-items:flex-start;min-height:56px;padding:8px 10px;text-align:left;background:var(--surface)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-text);border-color:var(--accent)}
+.seg small{opacity:.75;font-size:.8rem}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px}
+.stat .num{font-size:2rem;line-height:1}
+.stat span,.note{color:var(--muted);font-size:.85rem}
+.note{margin:0 0 10px}
+.stat .note{margin:0}
+section{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:16px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.field{margin-bottom:8px}
+label,.lbl{display:block;font-size:.85rem;color:var(--muted);margin:0 0 3px}
+input,select{width:100%;font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;min-height:44px}
+button{font:inherit;cursor:pointer;min-height:44px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--text);padding:0 14px}
+button.primary{background:var(--accent);color:var(--accent-text);border-color:var(--accent);width:100%;font-weight:600}
+button.wide{width:100%;margin-top:8px}
+button.small{min-height:36px;padding:0 10px;font-size:.85rem}
+button.warn{color:var(--danger);border-color:var(--danger)}
+:focus-visible{outline:2px solid var(--wt);outline-offset:2px}
+.msg{color:var(--danger);font-size:.9rem;min-height:1.2em;margin:6px 0 0}
+.list{list-style:none;margin:0;padding:0}
+.list li{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line);font-size:.95rem}
+.list li:last-child{border-bottom:none}
+.list .meta{color:var(--muted);font-size:.85rem}
+.list .r{display:flex;align-items:center;gap:6px;text-align:right}
+.list .r .num{font-size:1.5rem;line-height:1}
+.list button{min-height:32px;padding:0 8px;border:none;color:var(--muted)}
+footer{display:flex;justify-content:space-between;align-items:center;gap:8px;color:var(--muted);font-size:.85rem}
+#splash{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;background:var(--bg);color:var(--text);cursor:pointer;animation:splashOut .4s ease 3s forwards}
+@keyframes splashOut{to{opacity:0;visibility:hidden}}
+@media (prefers-reduced-motion:reduce){#splash{animation-duration:.01s}}
+.gauge{width:170px;height:170px;margin-bottom:20px;filter:drop-shadow(0 8px 14px rgba(0,0,0,.4))}
+.needle{transform-box:view-box;transform-origin:100px 100px;transform:rotate(32deg)}
+@media (prefers-reduced-motion:no-preference){.needle{animation:needleSweep 2.6s cubic-bezier(.12,.7,.25,1) both}}
+@keyframes needleSweep{from{transform:rotate(-120deg)}to{transform:rotate(32deg)}}
+.sp-title{font-size:clamp(2rem,10vw,2.8rem);line-height:1}
+.sp-by{color:var(--muted);margin:10px 0 2px;font-size:.95rem}
+.sp-co{font-size:1.5rem;letter-spacing:.02em}
 
-    /* High-visibility final value callout boxes */
-    .callout-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 4px;
-      margin-bottom: 12px;
-    }
-    .callout-box {
-      background: var(--highlight-bg);
-      border: 2px solid var(--highlight-border);
-      border-radius: 12px;
-      padding: 14px 10px;
-      text-align: center;
-      box-shadow: 0 0 18px rgba(16, 185, 129, 0.16);
-    }
-    .callout-box.primary {
-      background: rgba(255, 46, 126, 0.15);
-      border-color: var(--accent);
-      box-shadow: 0 0 20px rgba(255, 46, 126, 0.2);
-    }
-    .callout-lbl {
-      font-size: 0.72rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      color: var(--text);
-      margin-bottom: 6px;
-    }
-    .callout-val {
-      font-size: 1.75rem;
-      font-weight: 900;
-      color: #fff;
-      line-height: 1.15;
-    }
-    .callout-box.primary .callout-val {
-      color: #ff6aa2;
-      font-size: 1.9rem;
-    }
-    .callout-box.green .callout-val {
-      color: #34d399;
-    }
-    .callout-sub {
-      font-size: 0.75rem;
-      color: var(--muted);
-      margin-top: 4px;
-      font-weight: 600;
-    }
-
-    .btn-row { display: flex; gap: 8px; margin-top: 12px; }
-    .action-btn {
-      flex: 1;
-      padding: 12px;
-      border: none;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 0.9rem;
-      cursor: pointer;
-    }
-    .btn-clear { background: #262a34; color: var(--text); }
-    .btn-save { background: var(--accent); color: #fff; }
-    .btn-apply { background: var(--good); color: #07130e; }
-    .history-item {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.82rem;
-      padding: 8px 0;
-      border-bottom: 1px solid var(--border);
-    }
-    .history-item:last-child { border-bottom: none; }
-    .note-box {
-      font-size: 0.78rem;
-      color: var(--muted);
-      background: #12141a;
-      border-left: 3px solid var(--accent);
-      padding: 8px 10px;
-      border-radius: 6px;
-      margin-top: 10px;
-    }
-  </style>
+.readout{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:44px;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);margin-bottom:8px;font-size:.95rem}
+.readout span{color:var(--muted)}
+.readout strong{font-variant-numeric:tabular-nums}
+.row .readout,.row .tempbox{margin-bottom:0}
+.tempbox{display:flex;gap:8px;margin-bottom:8px}
+.tempbox input{flex:1;min-width:0}
+.tempbox button{flex:none;min-width:52px;padding:0 10px;font-weight:600}
+.result{border-left:10px solid var(--vol)}
+.result .meta{color:var(--muted);font-size:.9rem}
+.big{font-size:3.4rem;line-height:1;margin:2px 0 4px}
+.num{white-space:nowrap}
+.unit{font-size:1.4rem;color:var(--muted);margin-left:5px}
+.stat .unit{font-size:1rem;margin-left:3px}
+.list .unit{font-size:.85rem;margin-left:3px}
+.result .stats{margin:14px 0 0}
+.result .stat{background:var(--bg)}
+.btnrow{display:flex;gap:8px;margin-top:12px}
+.btnrow button{flex:1}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.k{border-left:6px solid var(--vol)}
+.k.wt{border-left-color:var(--wt)}
+#tallyPanel{margin-top:16px;padding-top:12px;border-top:1px solid var(--line)}
+.tallyhead{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:4px}
+.tallyhead h2{margin:0}
+#tallyPanel .stat{margin-top:12px}
+</style>
 </head>
 <body>
-  <div class="app">
-    <h1>FUEL BURN ESTIMATOR</h1>
-    <div class="sub">VP E100 burn estimator &amp; jug scale-to-liters calculator</div>
+<div id="splash">
+<svg class="gauge" viewBox="0 0 200 200" aria-hidden="true">
+<defs>
+<radialGradient id="fg-t" cx="50%" cy="50%" r="50%"><stop offset=".78" stop-color="#0b0c0d"/><stop offset=".83" stop-color="#1b1c1f"/><stop offset=".95" stop-color="#131416"/><stop offset="1" stop-color="#2e3034"/></radialGradient>
+<linearGradient id="fg-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5b5e64"/><stop offset=".5" stop-color="#34363a"/><stop offset="1" stop-color="#1c1d20"/></linearGradient>
+<radialGradient id="fg-f" cx="50%" cy="42%" r="62%"><stop offset="0" stop-color="#2a2c30"/><stop offset=".7" stop-color="#141517"/><stop offset="1" stop-color="#0b0c0d"/></radialGradient>
+<linearGradient id="fg-n" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f0c85a"/><stop offset=".5" stop-color="#c9a03a"/><stop offset="1" stop-color="#8a6516"/></linearGradient>
+<linearGradient id="fg-h" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/></linearGradient>
+<path id="fg-p" d="M15,100a85,85 0 1,1 170,0a85,85 0 1,1 -170,0"/>
+</defs>
+<circle cx="100" cy="100" r="97" fill="url(#fg-t)" stroke="#3b3e43" stroke-width="1.5"/>
+<circle cx="100" cy="100" r="94.5" fill="none" stroke="#08090a" stroke-width="3" stroke-dasharray="2.2 2.2" opacity=".7"/>
+<circle cx="100" cy="100" r="91" fill="none" stroke="#2a2c30" stroke-width=".8"/>
+<circle cx="100" cy="100" r="82" fill="none" stroke="#26282b" stroke-width=".8"/>
+<text font-family="'Barlow Condensed','Arial Narrow',sans-serif" font-size="7" font-weight="700" letter-spacing="2.4" fill="#cfd2d7" opacity=".75"><textPath href="#fg-p" startOffset="25%" text-anchor="middle">FUEL BURN ESTIMATOR</textPath></text>
+<circle cx="100" cy="100" r="78" fill="#0b0c0d" stroke="#6b6f75" stroke-width="1.2"/>
+<circle cx="100" cy="100" r="73" fill="none" stroke="url(#fg-g)" stroke-width="5"/>
+<circle cx="100" cy="100" r="69" fill="url(#fg-f)"/>
+<path d="M43.28,132.75A65.5,65.5 0 0 1 34.5,100" fill="none" stroke="#b3261e" stroke-width="2.6" stroke-linecap="butt"/>
+<line x1="52.37" y1="127.5" x2="45.44" y2="131.5" stroke="#ff6b5e" stroke-width="2" stroke-linecap="round"/>
+<line x1="43.01" y1="115.27" x2="39.15" y2="116.31" stroke="#ff6b5e" stroke-width="1" stroke-linecap="round"/>
+<line x1="41" y1="100" x2="37" y2="100" stroke="#ff6b5e" stroke-width="1" stroke-linecap="round"/>
+<line x1="43.01" y1="84.73" x2="39.15" y2="83.69" stroke="#cfd2d7" stroke-width="1" stroke-linecap="round"/>
+<line x1="52.37" y1="72.5" x2="45.44" y2="68.5" stroke="#cfd2d7" stroke-width="2" stroke-linecap="round"/>
+<line x1="58.28" y1="58.28" x2="55.45" y2="55.45" stroke="#cfd2d7" stroke-width="1" stroke-linecap="round"/>
+<line x1="70.5" y1="48.9" x2="68.5" y2="45.44" stroke="#cfd2d7" stroke-width="1" stroke-linecap="round"/>
+<line x1="84.73" y1="43.01" x2="83.69" y2="39.15" stroke="#cfd2d7" stroke-width="1" stroke-linecap="round"/>
+<line x1="100" y1="45" x2="100" y2="37" stroke="#cfd2d7" stroke-width="2" stroke-linecap="round"/>
+<line x1="115.27" y1="43.01" x2="116.31" y2="39.15" stroke="#cfd2d7" stroke-width="1" stroke-linecap="round"/>
+<line x1="129.5" y1="48.9" x2="131.5" y2="45.44" stroke="#cfd2d7" stroke-width="1" stroke-linecap="round"/>
+<line x1="141.72" y1="58.28" x2="144.55" y2="55.45" stroke="#cfd2d7" stroke-width="1" stroke-linecap="round"/>
+<line x1="147.63" y1="72.5" x2="154.56" y2="68.5" stroke="#cfd2d7" stroke-width="2" stroke-linecap="round"/>
+<line x1="156.99" y1="84.73" x2="160.85" y2="83.69" stroke="#cfd2d7" stroke-width="1" stroke-linecap="round"/>
+<line x1="159" y1="100" x2="163" y2="100" stroke="#cfd2d7" stroke-width="1" stroke-linecap="round"/>
+<line x1="156.99" y1="115.27" x2="160.85" y2="116.31" stroke="#cfd2d7" stroke-width="1" stroke-linecap="round"/>
+<line x1="147.63" y1="127.5" x2="154.56" y2="131.5" stroke="#cfd2d7" stroke-width="2" stroke-linecap="round"/>
+<text x="61.89" y="126" font-size="12" fill="#ff8a80" font-family="'Barlow Condensed','Arial Narrow',sans-serif" font-weight="700" text-anchor="middle">E</text>
+<text x="138.11" y="126" font-size="12" fill="#cfd2d7" font-family="'Barlow Condensed','Arial Narrow',sans-serif" font-weight="700" text-anchor="middle">F</text>
+<text x="100" y="60" font-size="11" fill="#cfd2d7" font-family="'Barlow Condensed','Arial Narrow',sans-serif" font-weight="700" text-anchor="middle">½</text>
+<path d="M100,70.5q-5,7.2 -5,10.6a5,5 0 0 0 10,0q0,-3.4 -5,-10.6z" fill="#8f9298" opacity=".85"/>
+<text x="100" y="128" font-size="6.5" letter-spacing="2" fill="#8f9298" text-anchor="middle" font-family="'Barlow Condensed','Arial Narrow',sans-serif" font-weight="700">FUEL</text>
+<g class="needle">
+<path d="M97.8,104L100,43L102.2,104L101.5,114L98.5,114Z" fill="#000" opacity=".4" transform="translate(1.6 2)"/>
+<path d="M97.8,104L100,43L102.2,104L101.5,114L98.5,114Z" fill="url(#fg-n)" stroke="#5a4410" stroke-width=".4"/>
+</g>
+<circle cx="100" cy="100" r="9" fill="url(#fg-g)" stroke="#6d7076" stroke-width=".6"/>
+<circle cx="100" cy="100" r="5.6" fill="#17181a" stroke="#b8902a" stroke-width="1.2"/>
+<circle cx="100" cy="100" r="2" fill="#5d6066"/>
+<circle cx="100" cy="100" r="97" fill="url(#fg-h)"/>
+</svg>
+<div class="sp-title num">Fuel Burn Estimator</div>
+<div class="sp-by">created by</div>
+<div class="sp-co num">Ryne Hoover Transportation</div>
+</div>
+<main>
+<h1>Fuel burn</h1>
+<p class="sub">Pump-in vs. pump-out per lap, plus jug scale weight to liters.</p>
 
-    <div class="mode-nav">
-      <button type="button" class="nav-btn active" id="tabBurn">1. Burn / Lap Calc</button>
-      <button type="button" class="nav-btn" id="tabJugSg">2. Jug Liters &amp; Fill</button>
-    </div>
+<div class="seg c2" role="group" aria-label="Calculator">
+<button type="button" id="tabBurn" aria-pressed="true"><strong>Burn per lap</strong><small>Fuel in vs. fuel out</small></button>
+<button type="button" id="tabJug" aria-pressed="false"><strong>Jugs &amp; fill</strong><small>Scale weight to liters</small></button>
+</div>
 
-    <!-- TAB 1: BURN CALCULATOR -->
-    <div id="burnView">
-      <div class="card">
-        <label for="trackSelect">Select Track</label>
-        <select id="trackSelect"></select>
+<!-- TAB 1: BURN PER LAP -->
+<div id="burnView">
+<section>
+<h2>Setup</h2>
+<div class="field"><label for="trackSelect">Track</label><select id="trackSelect"></select></div>
+<div id="customTrackFields" class="row" hidden>
+<div><label for="customName">Track name</label><input type="text" id="customName" placeholder="e.g. Homestead" maxlength="40" autocomplete="off"></div>
+<div><label for="customMiles">Length (miles)</label><input type="number" id="customMiles" step="0.01" inputmode="decimal" placeholder="2.21"></div>
+</div>
+<div class="readout" id="trackMeta">Length: 3.560 mi (5.73 km)</div>
 
-        <div id="customTrackFields" class="row" style="display:none;">
-          <div>
-            <label for="customName">Track Name</label>
-            <input type="text" id="customName" placeholder="e.g. Homestead" />
-          </div>
-          <div>
-            <label for="customMiles">Length (Miles)</label>
-            <input type="number" id="customMiles" step="0.01" placeholder="2.21" />
-          </div>
-        </div>
+<p class="lbl">Measure fuel in: pump (L, gal) or scale (kg, lbs)</p>
+<div class="seg c4" id="unitSeg" role="group" aria-label="Measure fuel in">
+<button type="button" data-unit="L" aria-pressed="true"><strong>L</strong><small>Liters</small></button>
+<button type="button" data-unit="gal" aria-pressed="false"><strong>gal</strong><small>Gallons</small></button>
+<button type="button" data-unit="kg" aria-pressed="false"><strong>kg</strong><small>Weight</small></button>
+<button type="button" data-unit="lbs" aria-pressed="false"><strong>lbs</strong><small>Weight</small></button>
+</div>
 
-        <div class="meta-bar" id="trackMeta">Length: 3.56 mi (5.73 km)</div>
+<div id="sgSection" hidden>
+<div class="row">
+<div><label for="fuelPreset">Fuel blend</label>
+<select id="fuelPreset">
+<option value="0.790" data-beta="0.00060" selected>VP E100</option>
+<option value="0.765" data-beta="0.00050">VP MS100</option>
+<option value="0.745" data-beta="0.00050">Race Unleaded</option>
+<option value="0.734" data-beta="0.00050">Sunoco 260 GT</option>
+<option value="0.718" data-beta="0.00050">VP C12</option>
+<option value="custom" data-beta="0.00055">Custom SG</option>
+</select></div>
+<div><label for="baseSgInput">Base SG at 60°F</label><input type="number" id="baseSgInput" step="0.001" value="0.790" inputmode="decimal"></div>
+</div>
+<div class="row">
+<div><label for="fuelTemp">Fuel temp</label>
+<div class="tempbox"><input type="number" id="fuelTemp" step="1" value="60" inputmode="decimal"><button type="button" id="tempUnitBtn" aria-label="Switch temperature unit">°F</button></div></div>
+<div><label>Temp-adjusted SG</label><div class="readout"><span>Live</span><strong id="adjustedSgDisplay">0.7900</strong></div></div>
+</div>
+</div>
+</section>
 
-        <label>Measurement Mode (Scale vs. Pump)</label>
-        <div class="unit-tabs">
-          <button type="button" class="unit-btn active" data-unit="L">Liters (L)</button>
-          <button type="button" class="unit-btn" data-unit="gal">Gallons</button>
-          <button type="button" class="unit-btn" data-unit="kg">Weight (kg)</button>
-          <button type="button" class="unit-btn" data-unit="lbs">Weight (lbs)</button>
-        </div>
+<section>
+<h2>Fuel &amp; laps</h2>
+<div class="row">
+<div><label for="fuelIn" id="fuelInLbl">Fuel put in (L)</label><input id="fuelIn" type="number" step="0.1" inputmode="decimal" placeholder="0.0"></div>
+<div><label for="fuelOut" id="fuelOutLbl">Fuel pumped out (L)</label><input id="fuelOut" type="number" step="0.1" inputmode="decimal" placeholder="0.0"></div>
+</div>
+<div class="row" style="margin-bottom:0">
+<div><label for="lapsRun">Laps completed</label><input id="lapsRun" type="number" step="1" min="0" inputmode="numeric" placeholder="0"></div>
+<div><label for="tankCap" id="tankCapLbl">Tank size (L)</label><input id="tankCap" type="number" step="0.5" inputmode="decimal" placeholder="optional"></div>
+</div>
+</section>
 
-        <div id="sgSection" style="display:none;">
-          <div class="row">
-            <div>
-              <label for="fuelPreset">Fuel Blend</label>
-              <select id="fuelPreset">
-                <option value="0.790" data-beta="0.00060" selected>VP E100 (0.790 @ 60°F)</option>
-                <option value="0.765" data-beta="0.00050">VP MS100 (0.765 @ 60°F)</option>
-                <option value="0.745" data-beta="0.00050">Race Unleaded (0.745 @ 60°F)</option>
-                <option value="0.734" data-beta="0.00050">Sunoco 260 GT (0.734 @ 60°F)</option>
-                <option value="0.718" data-beta="0.00050">VP C12 (0.718 @ 60°F)</option>
-                <option value="custom" data-beta="0.00055">Custom SG...</option>
-              </select>
-            </div>
-            <div>
-              <label for="baseSgInput">Base SG (@ 60°F)</label>
-              <input type="number" id="baseSgInput" step="0.001" value="0.790" inputmode="decimal" />
-            </div>
-          </div>
+<section class="result">
+<div class="meta">Estimated fuel used per lap</div>
+<div class="num big" id="lPerLap">0.00<span class="unit">L</span></div>
+<div class="meta" id="weightPerLap">0.00 kg · 0.00 lbs per lap</div>
+<div class="stats">
+<div class="stat"><div class="num" id="netBurned">0.0<span class="unit">L</span></div><span>Net burned</span></div>
+<div class="stat"><div class="num" id="lPerKm">0.00</div><span>Liters / km</span></div>
+<div class="stat"><div class="num" id="estStint">--</div><span>Max laps / tank</span></div>
+</div>
+<div class="btnrow">
+<button type="button" id="clearBtn">Reset</button>
+<button type="button" class="primary" id="saveBtn">Log session</button>
+</div>
+<p class="msg" id="logMsg"></p>
+</section>
 
-          <div class="row">
-            <div>
-              <label for="fuelTemp">Fuel Temp</label>
-              <div class="temp-wrap">
-                <input type="number" id="fuelTemp" step="1" value="60" inputmode="decimal" />
-                <button type="button" class="temp-toggle" id="tempUnitBtn">°F</button>
-              </div>
-            </div>
-            <div>
-              <label>Temp-Adjusted SG</label>
-              <div class="meta-bar" style="margin-top:0; height:42px;">
-                <span>Live SG:</span>
-                <strong id="adjustedSgDisplay">0.7900</strong>
-              </div>
-            </div>
-          </div>
-        </div>
+<section id="historyCard" hidden>
+<h2>Session log</h2>
+<ul class="list" id="historyList"></ul>
+</section>
+</div>
 
-        <div class="row">
-          <div>
-            <label for="fuelIn" id="fuelInLbl">Fuel Put In (L)</label>
-            <input type="number" id="fuelIn" step="0.1" inputmode="decimal" placeholder="0.0" />
-          </div>
-          <div>
-            <label for="fuelOut" id="fuelOutLbl">Fuel Pumped Out (L)</label>
-            <input type="number" id="fuelOut" step="0.1" inputmode="decimal" placeholder="0.0" />
-          </div>
-        </div>
+<!-- TAB 2: JUGS & FILL -->
+<div id="jugView" hidden>
+<section>
+<h2>Pump-out jugs</h2>
+<p class="note">Weigh each jug on the scale in kg, then tap Add jug. The total is what came out of the car.</p>
+<div class="row">
+<div><label for="jugTareWeight">Empty jug tare (kg)</label><input type="number" id="jugTareWeight" step="0.01" value="0" inputmode="decimal" placeholder="e.g. 1.45"></div>
+<div><label for="jugGrossWeight">Gross weight (kg)</label><input type="number" id="jugGrossWeight" step="0.01" inputmode="decimal" placeholder="e.g. 17.25"></div>
+</div>
+<div class="row">
+<div><label for="jugSgInput">Fuel SG at 60°F</label><input type="number" id="jugSgInput" step="0.001" value="0.790" inputmode="decimal"></div>
+<div><label for="jugTemp">Fuel temp</label>
+<div class="tempbox"><input type="number" id="jugTemp" step="1" value="60" inputmode="decimal"><button type="button" id="jugTempUnitBtn" aria-label="Switch temperature unit">°F</button></div></div>
+</div>
+<div class="readout"><span>Temp-adjusted SG</span><strong id="jugLiveSgDisp">0.7900</strong></div>
 
-        <div class="row">
-          <div>
-            <label for="lapsRun">Laps Completed</label>
-            <input type="number" id="lapsRun" step="1" inputmode="numeric" placeholder="0" />
-          </div>
-          <div>
-            <label for="tankCap" id="tankCapLbl">Tank Capacity (L) <span style="opacity:.6">(Opt)</span></label>
-            <input type="number" id="tankCap" step="0.5" inputmode="decimal" placeholder="100" />
-          </div>
-        </div>
-      </div>
+<div class="pair">
+<div class="stat k"><div class="num" id="jugLitersOut">0.00 L</div><span>Fuel in this jug</span><div class="note" id="jugGalOut">0.00 US gal</div></div>
+<div class="stat k wt"><div class="num" id="jugNetKgOut">0.00 kg</div><span>Net weight</span><div class="note" id="jugNetLbsOut">0.00 lbs</div></div>
+</div>
+<button type="button" class="primary" id="addJugBtn">Add jug to total</button>
+<p class="msg" id="jugMsg"></p>
 
-      <div class="card results">
-        <div class="hero-stat">
-          <div class="hero-val" id="lPerLap">0.00 L</div>
-          <div class="hero-sub" id="weightPerLap">0.00 kg / lap · 0.00 lbs / lap</div>
-          <div class="hero-lbl">ESTIMATED FUEL USED PER LAP</div>
-        </div>
-        <div class="grid-stats">
-          <div class="stat-box">
-            <div class="stat-val" id="netBurned">0.0 L</div>
-            <div class="stat-lbl">Net Burned</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-val" id="lPerKm">0.00</div>
-            <div class="stat-lbl">Liters / km</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-val" id="estStint">--</div>
-            <div class="stat-lbl">Max Laps/Tank</div>
-          </div>
-        </div>
-        <div class="btn-row">
-          <button type="button" class="action-btn btn-clear" onclick="clearInputs()">Reset</button>
-          <button type="button" class="action-btn btn-save" onclick="saveLog()">Log Session</button>
-        </div>
-      </div>
+<div id="tallyPanel" hidden>
+<div class="tallyhead"><h2>Pumped out (<span id="jugCount">0</span>)</h2><button type="button" class="small warn" id="clearJugsBtn">Clear all</button></div>
+<ul class="list" id="jugTallyList"></ul>
+<div class="stat k"><div class="num" id="totalPumpedLiters">0.00 L</div><span>Total pumped out</span><div class="note" id="totalPumpedSub">0.00 kg net · 0.00 US gal across 0 jugs</div></div>
+<button type="button" class="primary wide" id="sendTotalOutBtn">Send total out to Burn</button>
+</div>
+</section>
 
-      <div class="card" id="historyCard" style="display:none;">
-        <label>Session Log</label>
-        <div id="historyList"></div>
-      </div>
-    </div>
+<section>
+<h2>Fill a jug to a target</h2>
+<p class="note">Enter the liters you want in the jug, then fill until the scale reads the gross target.</p>
+<div class="row">
+<div><label for="targetLiters">Liters to put in</label><input type="number" id="targetLiters" step="0.5" inputmode="decimal" placeholder="e.g. 20"></div>
+<div><label>SG used</label><div class="readout"><span>SG</span><strong id="targetActiveSgDisp">0.7900</strong></div></div>
+</div>
+<div class="pair">
+<div class="stat k"><div class="num" id="targetGrossKgOut">--</div><span>Gross scale target</span><div class="note" id="targetGrossSub">Incl. 0.00 kg tare</div></div>
+<div class="stat k wt"><div class="num" id="targetNetKgOut">--</div><span>Net fuel weight</span><div class="note" id="targetNetLbsOut">-- lbs net</div></div>
+</div>
+<div class="btnrow" style="margin-top:0">
+<button type="button" id="clearJugBtn">Reset</button>
+<button type="button" class="primary" id="applySgBtn">Send SG to Burn</button>
+</div>
+</section>
+</div>
 
-    <!-- TAB 2: JUG LITERS & TARGET FILL CALCULATOR -->
-    <div id="jugSgView" style="display:none;">
-      <div class="card">
-        <div class="section-title">A. How Much Fuel Is In a Jug? (Scale → Liters)</div>
-        <div class="sub" style="margin-bottom:12px;">Enter empty jug tare weight, gross weight on scale (kg), and SG</div>
+<footer><span>Works offline once loaded. Nothing you enter is saved when you close the app.</span></footer>
+</main>
 
-        <div class="row">
-          <div>
-            <label for="jugTareWeight">Empty Jug Tare (kg)</label>
-            <input type="number" id="jugTareWeight" step="0.01" value="0" inputmode="decimal" placeholder="e.g. 1.45" />
-          </div>
-          <div>
-            <label for="jugGrossWeight">Gross Weight (kg)</label>
-            <input type="number" id="jugGrossWeight" step="0.01" placeholder="e.g. 17.25" inputmode="decimal" />
-          </div>
-        </div>
+<script>
+var TRACKS = [
+  { name: 'Daytona International Speedway (Road)', miles: 3.56 },
+  { name: 'Sebring International Raceway', miles: 3.74 },
+  { name: 'Road Atlanta', miles: 2.54 },
+  { name: 'Watkins Glen International', miles: 3.40 },
+  { name: 'Road America', miles: 4.048 },
+  { name: 'VIRginia International Raceway', miles: 3.27 },
+  { name: 'Laguna Seca', miles: 2.238 },
+  { name: 'Indianapolis Motor Speedway (Road)', miles: 2.439 },
+  { name: 'Mid-Ohio Sports Car Course', miles: 2.258 },
+  { name: 'Barber Motorsports Park', miles: 2.38 },
+  { name: 'Sonoma Raceway', miles: 2.52 },
+  { name: 'Circuit of the Americas (COTA)', miles: 3.426 },
+  { name: 'Custom Track...', miles: 0 }
+];
+var GAL = 3.785411784, LB = 0.45359237, KM = 1.609344;
 
-        <div class="row">
-          <div>
-            <label for="jugSgInput">Fuel SG (Adjustable)</label>
-            <input type="number" id="jugSgInput" step="0.001" value="0.790" inputmode="decimal" />
-          </div>
-          <div>
-            <label for="jugTemp">Fuel Temp (Opt)</label>
-            <div class="temp-wrap">
-              <input type="number" id="jugTemp" step="1" value="60" inputmode="decimal" />
-              <button type="button" class="temp-toggle" id="jugTempUnitBtn">°F</button>
-            </div>
-          </div>
-        </div>
+var activeUnit = 'L', tempUnit = 'F', jugTempUnit = 'F';
+var activeBeta = 0.00060;   // thermal-expansion coefficient of the blend picked in the dropdown
+var pending = null;         // armed "tap again to confirm" action
+var pumpedJugs = [], sessionLog = [];
+var last = { netL: 0, lPerLap: 0 };
 
-        <div class="meta-bar">
-          <span>Temp-Adjusted Live SG:</span>
-          <strong id="jugLiveSgDisp">0.7900</strong>
-        </div>
+function $(id) { return document.getElementById(id); }
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
 
-        <!-- HIGH-VISIBILITY CALCULATED OUTPUTS FOR SECTION A -->
-        <div class="callout-grid">
-          <div class="callout-box primary">
-            <div class="callout-lbl">Fuel In Jug</div>
-            <div class="callout-val" id="jugLitersOut">0.00 L</div>
-            <div class="callout-sub" id="jugGalOut">0.00 US gal</div>
-          </div>
-          <div class="callout-box green">
-            <div class="callout-lbl">Net Fuel Weight</div>
-            <div class="callout-val" id="jugNetKgOut">0.00 kg</div>
-            <div class="callout-sub" id="jugNetLbsOut">0.00 lbs</div>
-          </div>
-        </div>
-      </div>
+TRACKS.forEach(function (t, i) {
+  var o = document.createElement('option');
+  o.value = i; o.textContent = t.name;
+  $('trackSelect').appendChild(o);
+});
 
-      <div class="card results">
-        <div class="section-title">B. Target Fill Calculator (Filling Jugs by Scale)</div>
-        <div class="sub" style="margin-bottom:12px;">Enter how many liters you want to put in the jug</div>
+/* ---------- tabs ---------- */
+function showTab(which) {
+  var burn = which === 'burn';
+  $('burnView').hidden = !burn;
+  $('jugView').hidden = burn;
+  $('tabBurn').setAttribute('aria-pressed', burn);
+  $('tabJug').setAttribute('aria-pressed', !burn);
+  if (!burn) calculateJug();
+  window.scrollTo(0, 0);
+}
+$('tabBurn').onclick = function () { showTab('burn'); };
+$('tabJug').onclick = function () { showTab('jug'); };
 
-        <div class="row">
-          <div>
-            <label for="targetLiters">Target Liters to Put In</label>
-            <input type="number" id="targetLiters" step="0.5" placeholder="e.g. 20" inputmode="decimal" />
-          </div>
-          <div>
-            <label>Active SG Used</label>
-            <div class="meta-bar" style="margin-top:0; height:42px;">
-              <span>SG:</span>
-              <strong id="targetActiveSgDisp">0.7900</strong>
-            </div>
-          </div>
-        </div>
+/* ---------- shared helpers ---------- */
+function adjustedSG(baseId, tempId, unit) {
+  var base = parseFloat($(baseId).value) || 0.790;
+  var raw = parseFloat($(tempId).value);
+  if (isNaN(raw)) return base;
+  var tF = unit === 'F' ? raw : raw * 9 / 5 + 32;
+  return Math.max(0.5, base - activeBeta * (tF - 60));
+}
+function getAdjustedSG() { return adjustedSG('baseSgInput', 'fuelTemp', tempUnit); }
+function getJugLiveSg() { return adjustedSG('jugSgInput', 'jugTemp', jugTempUnit); }
 
-        <!-- BIG HIGHLIGHTED FINAL VALUES FOR SECTION B -->
-        <div class="callout-grid">
-          <div class="callout-box primary">
-            <div class="callout-lbl">Gross Scale Target</div>
-            <div class="callout-val" id="targetGrossKgOut">--</div>
-            <div class="callout-sub" id="targetGrossSub">Incl. 0.00 kg tare</div>
-          </div>
-          <div class="callout-box green">
-            <div class="callout-lbl">Required Net Fuel</div>
-            <div class="callout-val" id="targetNetKgOut">--</div>
-            <div class="callout-sub" id="targetNetLbsOut">-- lbs net</div>
-          </div>
-        </div>
+function toLiters(val, unit, sg) {
+  if (!val || val <= 0) return 0;
+  if (unit === 'L') return val;
+  if (unit === 'gal') return val * GAL;
+  if (unit === 'kg') return sg > 0 ? val / sg : 0;
+  if (unit === 'lbs') return sg > 0 ? (val * LB) / sg : 0;
+  return val;
+}
 
-        <div class="btn-row">
-          <button type="button" class="action-btn btn-clear" onclick="clearJugInputs()">Reset Jug</button>
-          <button type="button" class="action-btn btn-apply" id="applySgBtn">Send SG to Burn Calc</button>
-        </div>
-        <div class="note-box">
-          <strong>Section A:</strong> Weigh jug on scale (kg) minus tare → shows exact <strong>Liters in Jug</strong>.<br/>
-          <strong>Section B:</strong> Type desired Liters → shows exact <strong>Gross Scale Target (kg)</strong> to stop filling at.
-        </div>
-      </div>
-    </div>
-  </div>
+function toggleTemp(inputId, btnId, getUnit, setUnitFn) {
+  var inp = $(inputId), cur = parseFloat(inp.value);
+  if (getUnit() === 'F') {
+    setUnitFn('C'); $(btnId).textContent = '°C';
+    if (!isNaN(cur)) inp.value = ((cur - 32) * 5 / 9).toFixed(1);
+  } else {
+    setUnitFn('F'); $(btnId).textContent = '°F';
+    if (!isNaN(cur)) inp.value = (cur * 9 / 5 + 32).toFixed(0);
+  }
+}
 
-  <script>
-    const tracks = [
-      { name: "Daytona International Speedway (Road)", miles: 3.56 },
-      { name: "Sebring International Raceway", miles: 3.74 },
-      { name: "Road Atlanta", miles: 2.54 },
-      { name: "Watkins Glen International", miles: 3.40 },
-      { name: "Road America", miles: 4.048 },
-      { name: "VIRginia International Raceway", miles: 3.27 },
-      { name: "Laguna Seca", miles: 2.238 },
-      { name: "Indianapolis Motor Speedway (Road)", miles: 2.439 },
-      { name: "Mid-Ohio Sports Car Course", miles: 2.258 },
-      { name: "Barber Motorsports Park", miles: 2.38 },
-      { name: "Sonoma Raceway", miles: 2.52 },
-      { name: "Circuit of the Americas (COTA)", miles: 3.426 },
-      { name: "Custom Track...", miles: 0 }
-    ];
+/* ---------- burn per lap ---------- */
+function setUnit(unit) {
+  activeUnit = unit;
+  document.querySelectorAll('#unitSeg button').forEach(function (b) {
+    b.setAttribute('aria-pressed', b.dataset.unit === unit);
+  });
+  $('sgSection').hidden = !(unit === 'kg' || unit === 'lbs');
+  $('fuelInLbl').textContent = 'Fuel put in (' + unit + ')';
+  $('fuelOutLbl').textContent = 'Fuel pumped out (' + unit + ')';
+  $('tankCapLbl').textContent = 'Tank size (' + unit + ')';
+  calculate();
+}
 
-    let activeUnit = "L";
-    let tempUnit = "F";
-    let jugTempUnit = "F";
+function getActiveMiles() {
+  var t = TRACKS[parseInt($('trackSelect').value, 10)];
+  return t.miles === 0 ? (parseFloat($('customMiles').value) || 0) : t.miles;
+}
 
-    const trackSelect = document.getElementById("trackSelect");
-    const customFields = document.getElementById("customTrackFields");
-    const customMiles = document.getElementById("customMiles");
-    const trackMeta = document.getElementById("trackMeta");
-    const sgSection = document.getElementById("sgSection");
-    const fuelPreset = document.getElementById("fuelPreset");
-    const baseSgInput = document.getElementById("baseSgInput");
-    const fuelTempInput = document.getElementById("fuelTemp");
-    const tempUnitBtn = document.getElementById("tempUnitBtn");
-    const adjustedSgDisplay = document.getElementById("adjustedSgDisplay");
+function updateTrackInfo() {
+  var t = TRACKS[parseInt($('trackSelect').value, 10)];
+  $('customTrackFields').hidden = t.miles !== 0;
+  var miles = getActiveMiles();
+  $('trackMeta').textContent = miles > 0
+    ? 'Length: ' + miles.toFixed(3) + ' mi (' + (miles * KM).toFixed(2) + ' km)'
+    : 'Enter custom track length in miles';
+  calculate();
+}
 
-    tracks.forEach((t, i) => {
-      const opt = document.createElement("option");
-      opt.value = i;
-      opt.textContent = t.name;
-      trackSelect.appendChild(opt);
+function calculate() {
+  var rawIn = parseFloat($('fuelIn').value) || 0;
+  var rawOut = parseFloat($('fuelOut').value) || 0;
+  var rawTank = parseFloat($('tankCap').value) || 0;
+  var laps = parseFloat($('lapsRun').value) || 0;
+
+  var sg = getAdjustedSG();
+  $('adjustedSgDisplay').textContent = sg.toFixed(4);
+
+  var inL = toLiters(rawIn, activeUnit, sg);
+  var outL = toLiters(rawOut, activeUnit, sg);
+  var tankL = toLiters(rawTank, activeUnit, sg);
+  var km = getActiveMiles() * KM;
+
+  var netL = Math.max(0, inL - outL);
+  var lPerLap = laps > 0 ? netL / laps : 0;
+  var kgPerLap = lPerLap * sg;
+  var lbsPerLap = kgPerLap * 2.20462;
+  var totalKm = laps * km;
+  var lPerKm = totalKm > 0 ? netL / totalKm : 0;
+  var maxLaps = (tankL > 0 && lPerLap > 0) ? (tankL / lPerLap).toFixed(1) : '--';
+
+  last = { netL: netL, lPerLap: lPerLap };
+  $('lPerLap').innerHTML = lPerLap.toFixed(2) + '<span class="unit">L</span>';
+  $('weightPerLap').textContent = kgPerLap.toFixed(2) + ' kg · ' + lbsPerLap.toFixed(2) + ' lbs per lap';
+  $('netBurned').innerHTML = netL.toFixed(1) + '<span class="unit">L</span>';
+  $('lPerKm').textContent = lPerKm.toFixed(2);
+  $('estStint').textContent = maxLaps;
+}
+
+$('clearBtn').onclick = function () {
+  ['fuelIn', 'fuelOut', 'lapsRun'].forEach(function (id) { $(id).value = ''; });
+  $('logMsg').textContent = '';
+  calculate();
+};
+
+function renderLog() {
+  $('historyCard').hidden = !sessionLog.length;
+  $('historyList').innerHTML = sessionLog.map(function (e, i) {
+    return '<li><div><strong>' + esc(e.name) + '</strong><div class="meta">' + esc(e.laps) + ' laps · ' + esc(e.unitInfo) +
+      ' · ' + e.net.toFixed(1) + ' L net</div></div>' +
+      '<div class="r"><span class="num">' + e.perLap.toFixed(2) + '<span class="unit">L/lap</span></span>' +
+      '<button type="button" class="small" data-i="' + i + '" aria-label="Remove log entry">Remove</button></div></li>';
+  }).join('');
+}
+
+$('saveBtn').onclick = function () {
+  if (!(last.lPerLap > 0)) { $('logMsg').textContent = 'Enter fuel in, fuel out and laps first.'; return; }
+  $('logMsg').textContent = '';
+  var t = TRACKS[parseInt($('trackSelect').value, 10)];
+  var name = t.miles === 0 ? ($('customName').value.trim() || 'Custom') : t.name.split(' (')[0];
+  var weight = activeUnit === 'kg' || activeUnit === 'lbs';
+  sessionLog.unshift({
+    name: name,
+    laps: $('lapsRun').value || 0,
+    unitInfo: weight ? activeUnit + ' @ ' + ($('fuelTemp').value || '60') + '°' + tempUnit : activeUnit,
+    net: last.netL,
+    perLap: last.lPerLap
+  });
+  renderLog();
+};
+
+$('historyList').onclick = function (e) {
+  var b = e.target.closest('button'); if (!b) return;
+  sessionLog.splice(parseInt(b.dataset.i, 10), 1);
+  renderLog();
+};
+
+/* ---------- jugs & fill ---------- */
+function calculateJug() {
+  var tareKg = parseFloat($('jugTareWeight').value) || 0;
+  var grossKg = parseFloat($('jugGrossWeight').value) || 0;
+  var targetL = parseFloat($('targetLiters').value) || 0;
+  var sg = getJugLiveSg();
+
+  $('jugLiveSgDisp').textContent = sg.toFixed(4);
+  $('targetActiveSgDisp').textContent = sg.toFixed(4);
+
+  var netKg = grossKg > 0 ? Math.max(0, grossKg - tareKg) : 0;
+  var liters = sg > 0 ? netKg / sg : 0;
+  $('jugLitersOut').textContent = liters.toFixed(2) + ' L';
+  $('jugGalOut').textContent = (liters / GAL).toFixed(2) + ' US gal';
+  $('jugNetKgOut').textContent = netKg.toFixed(2) + ' kg';
+  $('jugNetLbsOut').textContent = (netKg * 2.20462262).toFixed(2) + ' lbs';
+
+  if (targetL > 0) {
+    var reqKg = targetL * sg, grossT = tareKg + reqKg;
+    $('targetGrossKgOut').textContent = grossT.toFixed(2) + ' kg';
+    $('targetGrossSub').textContent = (grossT * 2.20462262).toFixed(2) + ' lbs (incl. ' + tareKg.toFixed(2) + ' kg tare)';
+    $('targetNetKgOut').textContent = reqKg.toFixed(2) + ' kg';
+    $('targetNetLbsOut').textContent = (reqKg * 2.20462262).toFixed(2) + ' lbs net';
+  } else {
+    $('targetGrossKgOut').textContent = '--';
+    $('targetGrossSub').textContent = 'Incl. ' + tareKg.toFixed(2) + ' kg tare';
+    $('targetNetKgOut').textContent = '--';
+    $('targetNetLbsOut').textContent = '-- lbs net';
+  }
+}
+
+function renderJugTally() {
+  var has = pumpedJugs.length > 0;
+  $('tallyPanel').hidden = !has;
+  $('clearJugsBtn').textContent = pending === 'jugs' ? 'Tap again to clear' : 'Clear all';
+  if (!has) return;
+
+  var totalL = 0, totalKg = 0;
+  $('jugCount').textContent = pumpedJugs.length;
+  $('jugTallyList').innerHTML = pumpedJugs.map(function (j, i) {
+    totalL += j.liters; totalKg += j.netKg;
+    return '<li><div><strong>Jug ' + (i + 1) + '</strong> · ' + j.netKg.toFixed(2) + ' kg net' +
+      '<div class="meta">Gross ' + j.grossKg.toFixed(2) + ' kg · tare ' + j.tareKg.toFixed(2) + ' kg · SG ' + j.sg.toFixed(4) + '</div></div>' +
+      '<div class="r"><span class="num">' + j.liters.toFixed(2) + '<span class="unit">L</span></span>' +
+      '<button type="button" class="small" data-jug="' + i + '" aria-label="Remove jug ' + (i + 1) + '">Remove</button></div></li>';
+  }).join('');
+  $('totalPumpedLiters').textContent = totalL.toFixed(2) + ' L';
+  $('totalPumpedSub').textContent = totalKg.toFixed(2) + ' kg net · ' + (totalL / GAL).toFixed(2) + ' US gal across ' +
+    pumpedJugs.length + (pumpedJugs.length > 1 ? ' jugs' : ' jug');
+}
+
+function arm(key) {
+  pending = key; renderJugTally();
+  setTimeout(function () { if (pending === key) { pending = null; renderJugTally(); } }, 3000);
+}
+
+$('addJugBtn').onclick = function () {
+  var tareKg = parseFloat($('jugTareWeight').value) || 0;
+  var grossKg = parseFloat($('jugGrossWeight').value) || 0;
+  var sg = getJugLiveSg();
+  var netKg = grossKg - tareKg;
+  if (!(grossKg > 0) || !(netKg > 0) || !(sg > 0)) {
+    $('jugMsg').textContent = 'Enter a gross weight that is heavier than the tare.'; return;
+  }
+  $('jugMsg').textContent = '';
+  pumpedJugs.push({ tareKg: tareKg, grossKg: grossKg, netKg: netKg, liters: netKg / sg, sg: sg });
+  $('jugGrossWeight').value = '';   // ready for the next jug; tare stays
+  pending = null;
+  calculateJug(); renderJugTally();
+};
+
+$('jugTallyList').onclick = function (e) {
+  var b = e.target.closest('button'); if (!b) return;
+  pumpedJugs.splice(parseInt(b.dataset.jug, 10), 1);
+  pending = null; renderJugTally();
+};
+
+$('clearJugsBtn').onclick = function () {
+  if (pending === 'jugs') { pumpedJugs = []; pending = null; renderJugTally(); }
+  else arm('jugs');
+};
+
+$('sendTotalOutBtn').onclick = function () {
+  if (!pumpedJugs.length) return;
+  var total = pumpedJugs.reduce(function (s, j) { return s + j.liters; }, 0);
+  if (activeUnit !== 'L') {
+    // Pump-out is in liters, so switch to liters, converting what's already typed so it keeps its meaning.
+    var sg = getAdjustedSG();
+    ['fuelIn', 'tankCap'].forEach(function (id) {
+      var v = parseFloat($(id).value);
+      if (v > 0) $(id).value = +toLiters(v, activeUnit, sg).toFixed(2);
     });
+    setUnit('L');
+  }
+  $('fuelOut').value = total.toFixed(2);
+  calculate(); showTab('burn');
+};
 
-    // Tab switching
-    const tabBurn = document.getElementById("tabBurn");
-    const tabJugSg = document.getElementById("tabJugSg");
-    const burnView = document.getElementById("burnView");
-    const jugSgView = document.getElementById("jugSgView");
+$('clearJugBtn').onclick = function () {
+  $('jugGrossWeight').value = ''; $('targetLiters').value = ''; $('jugMsg').textContent = '';
+  calculateJug();
+};
 
-    tabBurn.addEventListener("click", () => {
-      tabBurn.classList.add("active");
-      tabJugSg.classList.remove("active");
-      burnView.style.display = "block";
-      jugSgView.style.display = "none";
-    });
+$('applySgBtn').onclick = function () {
+  var sg = parseFloat($('jugSgInput').value);
+  if (!(sg > 0)) return;
+  $('baseSgInput').value = String(sg);
+  var match = Array.prototype.filter.call($('fuelPreset').options, function (o) {
+    return o.value !== 'custom' && parseFloat(o.value) === sg;
+  })[0];
+  if (match) { $('fuelPreset').value = match.value; activeBeta = parseFloat(match.dataset.beta) || activeBeta; }
+  else $('fuelPreset').value = 'custom';   // keeps the current coefficient so both tabs agree
+  var raw = parseFloat($('jugTemp').value);
+  if (!isNaN(raw)) {
+    $('fuelTemp').value = raw; tempUnit = jugTempUnit;
+    $('tempUnitBtn').textContent = '°' + tempUnit;
+  }
+  calculate(); showTab('burn');
+};
 
-    tabJugSg.addEventListener("click", () => {
-      tabJugSg.classList.add("active");
-      tabBurn.classList.remove("active");
-      burnView.style.display = "none";
-      jugSgView.style.display = "block";
-      calculateJug();
-    });
+/* ---------- wiring ---------- */
+$('unitSeg').onclick = function (e) {
+  var b = e.target.closest('button'); if (b) setUnit(b.dataset.unit);
+};
+$('tempUnitBtn').onclick = function () {
+  toggleTemp('fuelTemp', 'tempUnitBtn', function () { return tempUnit; }, function (u) { tempUnit = u; });
+  calculate();
+};
+$('jugTempUnitBtn').onclick = function () {
+  toggleTemp('jugTemp', 'jugTempUnitBtn', function () { return jugTempUnit; }, function (u) { jugTempUnit = u; });
+  calculateJug();
+};
 
-    function getBeta() {
-      const selectedOpt = fuelPreset.options[fuelPreset.selectedIndex];
-      return parseFloat(selectedOpt.dataset.beta) || 0.00060;
-    }
+$('fuelPreset').onchange = function () {
+  var o = this.options[this.selectedIndex];
+  activeBeta = parseFloat(o.dataset.beta) || activeBeta;
+  if (this.value !== 'custom') {
+    $('baseSgInput').value = this.value;
+    $('jugSgInput').value = this.value;
+  } else {
+    $('baseSgInput').focus();
+  }
+  calculate(); calculateJug();
+};
 
-    function getAdjustedSG() {
-      const baseSg = parseFloat(baseSgInput.value) || 0.790;
-      const rawTemp = parseFloat(fuelTempInput.value);
-      if (isNaN(rawTemp)) return baseSg;
+$('baseSgInput').oninput = function () {
+  $('fuelPreset').value = 'custom';   // coefficient stays as it was
+  $('jugSgInput').value = this.value;
+  calculate(); calculateJug();
+};
 
-      const tempF = tempUnit === "F" ? rawTemp : (rawTemp * 9 / 5) + 32;
-      const beta = getBeta();
+$('trackSelect').onchange = updateTrackInfo;
+['fuelIn', 'fuelOut', 'lapsRun', 'tankCap', 'customMiles', 'fuelTemp'].forEach(function (id) {
+  $(id).addEventListener('input', function () { $('logMsg').textContent = ''; if (id === 'customMiles') updateTrackInfo(); else calculate(); });
+});
+['jugTareWeight', 'jugGrossWeight', 'jugSgInput', 'jugTemp', 'targetLiters'].forEach(function (id) {
+  $(id).addEventListener('input', calculateJug);
+});
 
-      const adjSg = baseSg - (beta * (tempF - 60));
-      return Math.max(0.5, adjSg);
-    }
+$('splash').onclick = function () { this.style.display = 'none'; };
 
-    function toLiters(val, unit, sg) {
-      if (!val || val <= 0) return 0;
-      if (unit === "L") return val;
-      if (unit === "gal") return val * 3.78541;
-      if (unit === "kg") return sg > 0 ? val / sg : 0;
-      if (unit === "lbs") return sg > 0 ? (val * 0.45359237) / sg : 0;
-      return val;
-    }
-
-    function setUnit(unit) {
-      activeUnit = unit;
-      document.querySelectorAll(".unit-btn").forEach(btn => {
-        btn.classList.toggle("active", btn.dataset.unit === unit);
-      });
-
-      const isWeight = (unit === "kg" || unit === "lbs");
-      sgSection.style.display = isWeight ? "block" : "none";
-
-      document.getElementById("fuelInLbl").textContent = `Fuel Put In (${unit})`;
-      document.getElementById("fuelOutLbl").textContent = `Fuel Pumped Out (${unit})`;
-      document.getElementById("tankCapLbl").innerHTML = `Tank Capacity (${unit}) <span style="opacity:.6">(Opt)</span>`;
-      calculate();
-    }
-
-    function getActiveMiles() {
-      const idx = parseInt(trackSelect.value, 10);
-      return tracks[idx].miles === 0 ? (parseFloat(customMiles.value) || 0) : tracks[idx].miles;
-    }
-
-    function updateTrackInfo() {
-      const idx = parseInt(trackSelect.value, 10);
-      customFields.style.display = tracks[idx].miles === 0 ? "grid" : "none";
-      const miles = getActiveMiles();
-      const km = miles * 1.60934;
-      trackMeta.textContent = miles > 0
-        ? `Length: ${miles.toFixed(3)} mi (${km.toFixed(2)} km)`
-        : "Enter custom track length in miles";
-      calculate();
-    }
-
-    function calculate() {
-      const rawIn = parseFloat(document.getElementById("fuelIn").value) || 0;
-      const rawOut = parseFloat(document.getElementById("fuelOut").value) || 0;
-      const rawTank = parseFloat(document.getElementById("tankCap").value) || 0;
-      const laps = parseFloat(document.getElementById("lapsRun").value) || 0;
-
-      const sg = getAdjustedSG();
-      adjustedSgDisplay.textContent = sg.toFixed(4);
-
-      const fuelInL = toLiters(rawIn, activeUnit, sg);
-      const fuelOutL = toLiters(rawOut, activeUnit, sg);
-      const tankL = toLiters(rawTank, activeUnit, sg);
-
-      const miles = getActiveMiles();
-      const km = miles * 1.60934;
-
-      const netL = Math.max(0, fuelInL - fuelOutL);
-      const lPerLap = laps > 0 ? netL / laps : 0;
-      const kgPerLap = lPerLap * sg;
-      const lbsPerLap = kgPerLap * 2.20462;
-
-      const totalKm = laps * km;
-      const lPerKm = totalKm > 0 ? netL / totalKm : 0;
-      const maxLaps = (tankL > 0 && lPerLap > 0) ? (tankL / lPerLap).toFixed(1) : "--";
-
-      document.getElementById("lPerLap").textContent = `${lPerLap.toFixed(2)} L`;
-      document.getElementById("weightPerLap").textContent = `${kgPerLap.toFixed(2)} kg / lap · ${lbsPerLap.toFixed(2)} lbs / lap`;
-      document.getElementById("netBurned").textContent = `${netL.toFixed(1)} L`;
-      document.getElementById("lPerKm").textContent = lPerKm.toFixed(2);
-      document.getElementById("estStint").textContent = maxLaps;
-    }
-
-    function clearInputs() {
-      ["fuelIn", "fuelOut", "lapsRun"].forEach(id => document.getElementById(id).value = "");
-      calculate();
-    }
-
-    function saveLog() {
-      const idx = parseInt(trackSelect.value, 10);
-      const name = tracks[idx].miles === 0
-        ? (document.getElementById("customName").value || "Custom")
-        : tracks[idx].name.split(" (")[0];
-      const lPerLap = document.getElementById("lPerLap").textContent;
-      const net = document.getElementById("netBurned").textContent;
-      const laps = document.getElementById("lapsRun").value || 0;
-      const tempVal = fuelTempInput.value || "60";
-
-      if (parseFloat(lPerLap) <= 0) return;
-
-      const list = document.getElementById("historyList");
-      const item = document.createElement("div");
-      item.className = "history-item";
-      const unitInfo = (activeUnit === "kg" || activeUnit === "lbs")
-        ? `${activeUnit} @ ${tempVal}°${tempUnit}`
-        : activeUnit;
-      item.innerHTML = `<span><strong>${name}</strong> (${laps} laps · ${unitInfo})</span><span>${net} · <strong>${lPerLap}/lap</strong></span>`;
-      list.prepend(item);
-      document.getElementById("historyCard").style.display = "block";
-    }
-
-    // TAB 2: JUG LITERS & TARGET FILL CALCULATION
-    function getJugLiveSg() {
-      const baseSg = parseFloat(document.getElementById("jugSgInput").value) || 0.790;
-      const rawTemp = parseFloat(document.getElementById("jugTemp").value);
-      if (isNaN(rawTemp)) return baseSg;
-
-      const tempF = jugTempUnit === "F" ? rawTemp : (rawTemp * 9 / 5) + 32;
-      const beta = getBeta();
-      return Math.max(0.5, baseSg - (beta * (tempF - 60)));
-    }
-
-    function calculateJug() {
-      const tareKg = parseFloat(document.getElementById("jugTareWeight").value) || 0;
-      const grossKg = parseFloat(document.getElementById("jugGrossWeight").value) || 0;
-      const targetLiters = parseFloat(document.getElementById("targetLiters").value) || 0;
-
-      const liveSg = getJugLiveSg();
-      document.getElementById("jugLiveSgDisp").textContent = liveSg.toFixed(4);
-      document.getElementById("targetActiveSgDisp").textContent = liveSg.toFixed(4);
-
-      // Section A: Scale kg -> Liters in Jug
-      const netKg = grossKg > 0 ? Math.max(0, grossKg - tareKg) : 0;
-      const netLbs = netKg * 2.20462262;
-      const litersInJug = liveSg > 0 ? netKg / liveSg : 0;
-      const galInJug = litersInJug / 3.785411784;
-
-      document.getElementById("jugLitersOut").textContent = `${litersInJug.toFixed(2)} L`;
-      document.getElementById("jugGalOut").textContent = `${galInJug.toFixed(2)} US gal`;
-      document.getElementById("jugNetKgOut").textContent = `${netKg.toFixed(2)} kg`;
-      document.getElementById("jugNetLbsOut").textContent = `${netLbs.toFixed(2)} lbs`;
-
-      // Section B: Target Liters -> Required Net Fuel Weight & Gross Scale Target
-      if (targetLiters > 0) {
-        const reqNetKg = targetLiters * liveSg;
-        const reqNetLbs = reqNetKg * 2.20462262;
-        const grossTargetKg = tareKg + reqNetKg;
-        const grossTargetLbs = grossTargetKg * 2.20462262;
-
-        document.getElementById("targetGrossKgOut").textContent = `${grossTargetKg.toFixed(2)} kg`;
-        document.getElementById("targetGrossSub").textContent = `${grossTargetLbs.toFixed(2)} lbs (incl. ${tareKg.toFixed(2)} kg tare)`;
-        document.getElementById("targetNetKgOut").textContent = `${reqNetKg.toFixed(2)} kg`;
-        document.getElementById("targetNetLbsOut").textContent = `${reqNetLbs.toFixed(2)} lbs net`;
-      } else {
-        document.getElementById("targetGrossKgOut").textContent = "--";
-        document.getElementById("targetGrossSub").textContent = `Incl. ${tareKg.toFixed(2)} kg tare`;
-        document.getElementById("targetNetKgOut").textContent = "--";
-        document.getElementById("targetNetLbsOut").textContent = "-- lbs net";
-      }
-    }
-
-    function clearJugInputs() {
-      document.getElementById("jugGrossWeight").value = "";
-      document.getElementById("targetLiters").value = "";
-      calculateJug();
-    }
-
-    document.getElementById("applySgBtn").addEventListener("click", () => {
-      const jugBaseSg = parseFloat(document.getElementById("jugSgInput").value);
-      if (!isNaN(jugBaseSg) && jugBaseSg > 0) {
-        baseSgInput.value = jugBaseSg.toFixed(4);
-        fuelPreset.value = "custom";
-        const rawTemp = parseFloat(document.getElementById("jugTemp").value);
-        if (!isNaN(rawTemp)) {
-          fuelTempInput.value = rawTemp;
-          tempUnit = jugTempUnit;
-          tempUnitBtn.textContent = jugTempUnit === "F" ? "°F" : "°C";
-        }
-        calculate();
-        tabBurn.click();
-      }
-    });
-
-    document.getElementById("jugTempUnitBtn").addEventListener("click", () => {
-      const cur = parseFloat(document.getElementById("jugTemp").value);
-      if (jugTempUnit === "F") {
-        jugTempUnit = "C";
-        document.getElementById("jugTempUnitBtn").textContent = "°C";
-        if (!isNaN(cur)) document.getElementById("jugTemp").value = ((cur - 32) * 5 / 9).toFixed(1);
-      } else {
-        jugTempUnit = "F";
-        document.getElementById("jugTempUnitBtn").textContent = "°F";
-        if (!isNaN(cur)) document.getElementById("jugTemp").value = ((cur * 9 / 5) + 32).toFixed(0);
-      }
-      calculateJug();
-    });
-
-    document.querySelectorAll(".unit-btn").forEach(btn => {
-      btn.addEventListener("click", () => setUnit(btn.dataset.unit));
-    });
-
-    tempUnitBtn.addEventListener("click", () => {
-      const cur = parseFloat(fuelTempInput.value);
-      if (tempUnit === "F") {
-        tempUnit = "C";
-        tempUnitBtn.textContent = "°C";
-        if (!isNaN(cur)) fuelTempInput.value = ((cur - 32) * 5 / 9).toFixed(1);
-      } else {
-        tempUnit = "F";
-        tempUnitBtn.textContent = "°F";
-        if (!isNaN(cur)) fuelTempInput.value = ((cur * 9 / 5) + 32).toFixed(0);
-      }
-      calculate();
-    });
-
-    fuelPreset.addEventListener("change", () => {
-      if (fuelPreset.value !== "custom") {
-        baseSgInput.value = fuelPreset.value;
-        document.getElementById("jugSgInput").value = fuelPreset.value;
-        calculate();
-        calculateJug();
-      } else {
-        baseSgInput.focus();
-      }
-    });
-
-    baseSgInput.addEventListener("input", () => {
-      fuelPreset.value = "custom";
-      document.getElementById("jugSgInput").value = baseSgInput.value;
-      calculate();
-      calculateJug();
-    });
-
-    trackSelect.addEventListener("change", updateTrackInfo);
-    trackSelect.addEventListener("input", updateTrackInfo);
-    ["fuelIn", "fuelOut", "lapsRun", "tankCap", "customMiles", "fuelTemp"].forEach(id => {
-      document.getElementById(id).addEventListener("input", calculate);
-      document.getElementById(id).addEventListener("change", calculate);
-    });
-
-    ["jugTareWeight", "jugGrossWeight", "jugSgInput", "jugTemp", "targetLiters"].forEach(id => {
-      document.getElementById(id).addEventListener("input", calculateJug);
-      document.getElementById(id).addEventListener("change", calculateJug);
-    });
-
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker.register("./sw.js").catch(() => {});
-      });
-    }
-
-    updateTrackInfo();
-    calculateJug();
-  </script>
+updateTrackInfo();
+calculateJug();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+}
+</script>
 </body>
 </html>
