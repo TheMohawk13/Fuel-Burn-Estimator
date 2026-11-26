@@ -1,6 +1,6 @@
 # Fuel Burn Estimator
 
-Work out how much fuel a car burns per lap from what you put in and what you pump out, and turn jug scale weights into liters. Built for fuelers and engineers, works offline, and looks and feels like the Tire Set Tracker.
+Work out how much fuel a car burns per lap from what you put in and what you pump out, and turn jug scale weights into liters. Built for fuelers and engineers, remembers your jugs and your work, works offline, and looks and feels like the Tire Set Tracker.
 
 **Open it:** https://themohawk13.github.io/Fuel-Burn-Estimator
 
@@ -24,15 +24,17 @@ After that it opens like an app and works without a signal.
 
 ## Jugs & fill
 
-**Pump-out jugs.** Enter the empty jug weight (tare), put a jug on the scale, and type the gross weight. The app shows the liters in that jug. Tap **Add jug to total**, then weigh the next one. The tare stays, the gross weight clears. **Send total out to Burn per lap** puts the combined liters into the fuel pumped out box.
+**My jugs.** Weigh each empty jug once and save its number (or name) and tare. Name them to match the numbers on your jugs. After you save one, the next number fills in for you, so a full set goes in quickly. To fix a tare, change it in the list. Saved tares stay on your phone, so you only do this once.
 
-**Fill a jug to a target.** Type how many liters you want. The app shows the **gross scale target** to stop filling at, plus the net fuel weight.
+**Pump-out jugs.** Pick the jug, weigh it full, and type the gross weight. The app uses that jug's saved tare and shows the liters in it. Tap **Add jug to total** and the next saved jug is picked for you. For a jug you haven't saved, choose **Other** and type its tare. **Send total out to Burn** puts the combined liters into the fuel pumped out box.
 
-**Send SG to Burn per lap** copies the fuel SG and temperature over so both screens use the same density.
+**Fill a jug to a target.** Pick the jug and type how many liters you want. The app shows the **gross scale target** to stop filling at, plus the net fuel weight.
+
+**Send SG to Burn** copies the fuel SG and temperature over so both screens use the same density.
 
 ## Where your data lives
 
-Nothing is saved. Everything you type stays on your device and is gone when you close the app. Other people who open the link start with a blank copy.
+Everything you enter is saved on **your own device only**: your setup, the session log, the jugs you have weighed so far in a pump-out, and your saved jug tares. It is still there after the phone locks, you switch apps, or you close the app. Other people who open the link start with a blank copy and can't see your data, and you can't see theirs. Clearing your browser's website data erases it, and a different phone or browser will not have it. **Clear all** on the session log or the pump-out list empties that list.
 
 ## Calculation reference
 
@@ -52,4 +54,4 @@ Nothing is saved. Everything you type stays on your device and is gone when you 
 
 ## Updating the site (for the site owner)
 
-Upload the changed files to the repository, then raise the version number in `sw.js` (for example from `fuel-burn-v2` to `fuel-burn-v3`) so phones pick up the new version. iPhones save the home screen icon when it is added, so delete the old shortcut and add it again to see a new icon.
+Upload the changed files to the repository, then raise the version number in `sw.js` (for example from `fuel-burn-v3` to `fuel-burn-v4`) so phones pick up the new version. iPhones save the home screen icon when it is added, so delete the old shortcut and add it again to see a new icon.
