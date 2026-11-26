@@ -192,23 +192,24 @@ h2 .meta{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-w
 </div>
 
 <div id="sgSection" hidden>
-<div class="row">
-<div><label for="fuelPreset">Fuel blend</label>
+<div class="field"><label for="fuelPreset">Fuel blend</label>
 <select id="fuelPreset">
 <option value="0.790" data-beta="0.00060" selected>VP E100</option>
+<option value="0.712" data-beta="0.00050">VP IMSA 100 E10</option>
+<option value="0.750" data-beta="0.00050" data-est="1">VP IMSA E20C (est.)</option>
 <option value="0.765" data-beta="0.00050">VP MS100</option>
 <option value="0.745" data-beta="0.00050">Race Unleaded</option>
 <option value="0.734" data-beta="0.00050">Sunoco 260 GT</option>
 <option value="0.718" data-beta="0.00050">VP C12</option>
 <option value="custom" data-beta="0.00055">Custom SG</option>
 </select></div>
-<div><label for="baseSgInput">Base SG at 60°F</label><input type="number" id="baseSgInput" step="0.001" value="0.790" inputmode="decimal"></div>
-</div>
+<p class="note" id="presetNote" hidden>E20C density is an estimate (no spec sheet found). Type a measured SG if you have one.</p>
 <div class="row">
+<div><label for="baseSgInput">Base SG at 60°F</label><input type="number" id="baseSgInput" step="0.001" value="0.790" inputmode="decimal"></div>
 <div><label for="fuelTemp">Fuel temp</label>
 <div class="tempbox"><input type="number" id="fuelTemp" step="1" value="60" inputmode="decimal"><button type="button" id="tempUnitBtn" aria-label="Switch temperature unit">°F</button></div></div>
-<div><label>Temp-adjusted SG</label><div class="readout"><span>Live</span><strong id="adjustedSgDisplay">0.7900</strong></div></div>
 </div>
+<div class="readout"><span>Temp-adjusted SG</span><strong id="adjustedSgDisplay">0.7900</strong></div>
 </div>
 </section>
 
@@ -270,6 +271,8 @@ h2 .meta{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-w
 <div><label for="jugGrossWeight">Gross weight (kg)</label><input type="number" id="jugGrossWeight" step="0.01" inputmode="decimal" placeholder="e.g. 17.25"></div>
 </div>
 <div class="field" id="jugTareField"><label for="jugTareWeight">Empty jug tare (kg)</label><input type="number" id="jugTareWeight" step="0.01" value="0" inputmode="decimal" placeholder="e.g. 1.45"></div>
+<div class="field"><label for="jugFuelPreset">Fuel blend</label><select id="jugFuelPreset"></select></div>
+<p class="note" id="jugPresetNote" hidden>E20C density is an estimate (no spec sheet found). Type a measured SG if you have one.</p>
 <div class="row">
 <div><label for="jugSgInput">Fuel SG at 60°F</label><input type="number" id="jugSgInput" step="0.001" value="0.790" inputmode="decimal"></div>
 <div><label for="jugTemp">Fuel temp</label>
@@ -705,11 +708,10 @@ $('applySgBtn').onclick = function () {
   var sg = parseFloat($('jugSgInput').value);
   if (!(sg > 0)) return;
   $('baseSgInput').value = String(sg);
-  var match = Array.prototype.filter.call($('fuelPreset').options, function (o) {
-    return o.value !== 'custom' && parseFloat(o.value) === sg;
-  })[0];
-  if (match) { $('fuelPreset').value = match.value; activeBeta = parseFloat(match.dataset.beta) || activeBeta; }
-  else $('fuelPreset').value = 'custom';   // keeps the current coefficient so both tabs agree
+  var pick = presetFor(sg);
+  $('fuelPreset').value = pick;
+  if (pick !== 'custom') activeBeta = parseFloat($('fuelPreset').options[$('fuelPreset').selectedIndex].dataset.beta) || activeBeta;
+  syncPresetUI();   // 'custom' keeps the current coefficient so both tabs agree
   var raw = parseFloat($('jugTemp').value);
   if (!isNaN(raw)) {
     $('fuelTemp').value = raw; tempUnit = jugTempUnit;
@@ -731,21 +733,52 @@ $('jugTempUnitBtn').onclick = function () {
   calculateJug();
 };
 
-$('fuelPreset').onchange = function () {
-  var o = this.options[this.selectedIndex];
+/* Fuel blend pickers: the Burn tab and the Jugs tab share one list, and picking on either
+   sets the SG on both tabs. */
+function buildJugFuelSelect() {
+  var dst = $('jugFuelPreset');
+  dst.innerHTML = '';
+  Array.prototype.forEach.call($('fuelPreset').options, function (o) {
+    var c = document.createElement('option');
+    c.value = o.value; c.textContent = o.textContent;
+    if (o.dataset.est) c.dataset.est = '1';
+    dst.appendChild(c);
+  });
+}
+function presetFor(sg) {   // the preset whose SG equals this number, else 'custom'
+  var m = Array.prototype.filter.call($('fuelPreset').options, function (o) {
+    return o.value !== 'custom' && parseFloat(o.value) === sg;
+  })[0];
+  return m ? m.value : 'custom';
+}
+function syncPresetUI(keepJugPick) {
+  var o = $('fuelPreset').options[$('fuelPreset').selectedIndex];
+  $('presetNote').hidden = !(o && o.dataset.est);
+  var jug = $('jugFuelPreset');
+  jug.value = keepJugPick ? $('fuelPreset').value : presetFor(parseFloat($('jugSgInput').value));
+  var jo = jug.options[jug.selectedIndex];
+  $('jugPresetNote').hidden = !(jo && jo.dataset.est);
+}
+function choosePreset(value) {
+  $('fuelPreset').value = value;
+  var o = $('fuelPreset').options[$('fuelPreset').selectedIndex];
   activeBeta = parseFloat(o.dataset.beta) || activeBeta;
-  if (this.value !== 'custom') {
-    $('baseSgInput').value = this.value;
-    $('jugSgInput').value = this.value;
+  if (value !== 'custom') {
+    $('baseSgInput').value = value;
+    $('jugSgInput').value = value;
   } else {
-    $('baseSgInput').focus();
+    $(curTab === 'jug' ? 'jugSgInput' : 'baseSgInput').focus();
   }
+  syncPresetUI(value === 'custom');
   calculate(); calculateJug();
-};
+}
+$('fuelPreset').onchange = function () { choosePreset(this.value); };
+$('jugFuelPreset').onchange = function () { choosePreset(this.value); };
 
 $('baseSgInput').oninput = function () {
   $('fuelPreset').value = 'custom';   // coefficient stays as it was
   $('jugSgInput').value = this.value;
+  syncPresetUI();
   calculate(); calculateJug();
 };
 
@@ -756,6 +789,7 @@ $('trackSelect').onchange = updateTrackInfo;
 ['jugTareWeight', 'jugGrossWeight', 'jugSgInput', 'jugTemp', 'targetLiters', 'fillTare'].forEach(function (id) {
   $(id).addEventListener('input', calculateJug);
 });
+$('jugSgInput').addEventListener('input', function () { syncPresetUI(); });
 
 $('splash').onclick = function () { this.style.display = 'none'; };
 
@@ -808,7 +842,9 @@ function restore() {
   return true;
 }
 
+buildJugFuelSelect();
 if (!restore()) renderLib();
+syncPresetUI();
 setUnit(activeUnit);
 updateTrackInfo();
 calculateJug();
