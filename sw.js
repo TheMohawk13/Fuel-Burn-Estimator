@@ -1,5 +1,5 @@
 // Bump CACHE when you upload a new version so phones pick it up.
-var CACHE = 'fuel-burn-v4';
+var CACHE = 'fuel-burn-v5';
 var FILES = ['./', 'index.html', 'manifest.webmanifest', 'icon.svg', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'];
 
 self.addEventListener('install', function (e) {

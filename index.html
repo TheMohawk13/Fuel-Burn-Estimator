@@ -194,22 +194,18 @@ h2 .meta{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-w
 <div id="sgSection" hidden>
 <div class="field"><label for="fuelPreset">Fuel blend</label>
 <select id="fuelPreset">
-<option value="0.790" data-beta="0.00060" selected>VP E100</option>
-<option value="0.712" data-beta="0.00050">VP IMSA 100 E10</option>
+<option value="0.712" data-beta="0.00050" selected>VP IMSA 100 E10</option>
 <option value="0.750" data-beta="0.00050" data-est="1">VP IMSA E20C (est.)</option>
 <option value="0.765" data-beta="0.00050">VP MS100</option>
-<option value="0.745" data-beta="0.00050">Race Unleaded</option>
-<option value="0.734" data-beta="0.00050">Sunoco 260 GT</option>
-<option value="0.718" data-beta="0.00050">VP C12</option>
 <option value="custom" data-beta="0.00055">Custom SG</option>
 </select></div>
 <p class="note" id="presetNote" hidden>E20C density is an estimate (no spec sheet found). Type a measured SG if you have one.</p>
 <div class="row">
-<div><label for="baseSgInput">Base SG at 60°F</label><input type="number" id="baseSgInput" step="0.001" value="0.790" inputmode="decimal"></div>
+<div><label for="baseSgInput">Base SG at 60°F</label><input type="number" id="baseSgInput" step="0.001" value="0.712" inputmode="decimal"></div>
 <div><label for="fuelTemp">Fuel temp</label>
 <div class="tempbox"><input type="number" id="fuelTemp" step="1" value="60" inputmode="decimal"><button type="button" id="tempUnitBtn" aria-label="Switch temperature unit">°F</button></div></div>
 </div>
-<div class="readout"><span>Temp-adjusted SG</span><strong id="adjustedSgDisplay">0.7900</strong></div>
+<div class="readout"><span>Temp-adjusted SG</span><strong id="adjustedSgDisplay">0.7120</strong></div>
 </div>
 </section>
 
@@ -274,11 +270,11 @@ h2 .meta{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-w
 <div class="field"><label for="jugFuelPreset">Fuel blend</label><select id="jugFuelPreset"></select></div>
 <p class="note" id="jugPresetNote" hidden>E20C density is an estimate (no spec sheet found). Type a measured SG if you have one.</p>
 <div class="row">
-<div><label for="jugSgInput">Fuel SG at 60°F</label><input type="number" id="jugSgInput" step="0.001" value="0.790" inputmode="decimal"></div>
+<div><label for="jugSgInput">Fuel SG at 60°F</label><input type="number" id="jugSgInput" step="0.001" value="0.712" inputmode="decimal"></div>
 <div><label for="jugTemp">Fuel temp</label>
 <div class="tempbox"><input type="number" id="jugTemp" step="1" value="60" inputmode="decimal"><button type="button" id="jugTempUnitBtn" aria-label="Switch temperature unit">°F</button></div></div>
 </div>
-<div class="readout"><span>Temp-adjusted SG</span><strong id="jugLiveSgDisp">0.7900</strong></div>
+<div class="readout"><span>Temp-adjusted SG</span><strong id="jugLiveSgDisp">0.7120</strong></div>
 
 <div class="pair">
 <div class="stat k"><div class="num" id="jugLitersOut">0.00 L</div><span>Fuel in this jug</span><div class="note" id="jugGalOut">0.00 US gal</div></div>
@@ -303,7 +299,7 @@ h2 .meta{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-w
 <div><label for="targetLiters">Liters to put in</label><input type="number" id="targetLiters" step="0.5" inputmode="decimal" placeholder="e.g. 20"></div>
 </div>
 <div class="field" id="fillTareField"><label for="fillTare">Empty jug tare (kg)</label><input type="number" id="fillTare" step="0.01" value="0" inputmode="decimal" placeholder="e.g. 1.45"></div>
-<div class="readout"><span>SG used</span><strong id="targetActiveSgDisp">0.7900</strong></div>
+<div class="readout"><span>SG used</span><strong id="targetActiveSgDisp">0.7120</strong></div>
 <div class="pair">
 <div class="stat k"><div class="num" id="targetGrossKgOut">--</div><span>Gross scale target</span><div class="note" id="targetGrossSub">Incl. 0.00 kg tare</div></div>
 <div class="stat k wt"><div class="num" id="targetNetKgOut">--</div><span>Net fuel weight</span><div class="note" id="targetNetLbsOut">-- lbs net</div></div>
@@ -341,7 +337,7 @@ var FIELDS = ['trackSelect', 'customName', 'customMiles', 'fuelPreset', 'baseSgI
   'lapsRun', 'tankCap', 'jugSgInput', 'jugTemp', 'jugTareWeight', 'jugGrossWeight', 'jugSel', 'fillJugSel', 'fillTare', 'targetLiters'];
 
 var activeUnit = 'L', tempUnit = 'F', jugTempUnit = 'F', curTab = 'burn';
-var activeBeta = 0.00060;   // thermal-expansion coefficient of the blend picked in the dropdown
+var activeBeta = 0.00050;   // thermal-expansion coefficient of the blend picked in the dropdown
 var pending = null;         // armed "tap again to confirm" action
 var jugs = [];              // saved jug library: { id, label, tare }
 var pumpedJugs = [], sessionLog = [];
@@ -377,7 +373,7 @@ $('tabJug').onclick = function () { showTab('jug'); };
 
 /* ---------- shared helpers ---------- */
 function adjustedSG(baseId, tempId, unit) {
-  var base = parseFloat($(baseId).value) || 0.790;
+  var base = parseFloat($(baseId).value) || 0.712;
   var raw = parseFloat($(tempId).value);
   if (isNaN(raw)) return base;
   var tF = unit === 'F' ? raw : raw * 9 / 5 + 32;
@@ -837,7 +833,9 @@ function restore() {
   renderLib();   // builds the jug pickers before their saved picks are put back
   var f = d.fields && typeof d.fields === 'object' ? d.fields : {};
   FIELDS.forEach(function (id) { if (typeof f[id] === 'string') $(id).value = f[id]; });
-  ['trackSelect', 'fuelPreset'].forEach(function (id) { if ($(id).selectedIndex < 0) $(id).selectedIndex = 0; });
+  if ($('trackSelect').selectedIndex < 0) $('trackSelect').selectedIndex = 0;
+  // A blend that is no longer in the list (older saves) keeps its saved SG and coefficient as Custom SG.
+  if ($('fuelPreset').selectedIndex < 0) $('fuelPreset').value = presetFor(parseFloat($('baseSgInput').value));
   renderJugSelects();   // falls back to a sensible pick if a saved jug no longer exists
   return true;
 }
