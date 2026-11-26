@@ -17,7 +17,7 @@ After that it opens like an app and works without a signal.
 ## Burn per lap
 
 1. **Pick the track.** Choose one from the list, or **Custom Track...** and type its length in miles.
-2. **Pick how you measured the fuel.** **L** or **gal** if you read it off a pump, **kg** or **lbs** if you weighed it. The weight options also show the fuel blend and fuel temperature, because the same weight is a different volume when the fuel is warm.
+2. **Pick how you measured the fuel.** **L** or **gal** if you read it off a pump, **kg** or **lbs** if you weighed it. The weight options also show the fuel blend and fuel temperature, because the same weight is a different volume when the fuel is warm. The blend list has VP E100, VP IMSA 100 E10 (SG from VP's VP100 spec sheet), VP IMSA E20C, and a few others. VP doesn't publish a spec sheet for E20C, so its density is an estimate. Type a measured SG if you have one. The Jugs tab has the same fuel blend picker.
 3. **Enter the numbers.** Fuel put in, fuel pumped out, laps completed, and optionally the tank size.
 4. **Read the result.** Fuel used per lap (in liters, kg and lbs), net burned, liters per km, and the most laps a full tank would last.
 5. **Log session** adds it to the list below so you can compare runs. **Remove** takes an entry off.
@@ -54,4 +54,4 @@ Everything you enter is saved on **your own device only**: your setup, the sessi
 
 ## Updating the site (for the site owner)
 
-Upload the changed files to the repository, then raise the version number in `sw.js` (for example from `fuel-burn-v3` to `fuel-burn-v4`) so phones pick up the new version. iPhones save the home screen icon when it is added, so delete the old shortcut and add it again to see a new icon.
+Upload the changed files to the repository, then raise the version number in `sw.js` (for example from `fuel-burn-v4` to `fuel-burn-v5`) so phones pick up the new version. iPhones save the home screen icon when it is added, so delete the old shortcut and add it again to see a new icon.
