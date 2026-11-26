@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<defs><radialGradient id="ic-bg" cx="50%" cy="45%" r="75%"><stop offset="0" stop-color="#3b3e43"/><stop offset="1" stop-color="#141517"/></radialGradient></defs>
+<rect width="512" height="512" fill="url(#ic-bg)"/>
+<g transform="translate(61 61) scale(1.95)">
+<defs>
+<radialGradient id="fg-t" cx="50%" cy="50%" r="50%"><stop offset=".78" stop-color="#0b0c0d"/><stop offset=".83" stop-color="#1b1c1f"/><stop offset=".95" stop-color="#131416"/><stop offset="1" stop-color="#2e3034"/></radialGradient>
+<linearGradient id="fg-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5b5e64"/><stop offset=".5" stop-color="#34363a"/><stop offset="1" stop-color="#1c1d20"/></linearGradient>
+<radialGradient id="fg-f" cx="50%" cy="42%" r="62%"><stop offset="0" stop-color="#2a2c30"/><stop offset=".7" stop-color="#141517"/><stop offset="1" stop-color="#0b0c0d"/></radialGradient>
+<linearGradient id="fg-n" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f0c85a"/><stop offset=".5" stop-color="#c9a03a"/><stop offset="1" stop-color="#8a6516"/></linearGradient>
+<linearGradient id="fg-h" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/></linearGradient>
+<path id="fg-p" d="M15,100a85,85 0 1,1 170,0a85,85 0 1,1 -170,0"/>
+</defs>
+<circle cx="100" cy="100" r="97" fill="url(#fg-t)" stroke="#3b3e43" stroke-width="1.5"/>
+<circle cx="100" cy="100" r="94.5" fill="none" stroke="#08090a" stroke-width="3" stroke-dasharray="2.2 2.2" opacity=".7"/>
+<circle cx="100" cy="100" r="91" fill="none" stroke="#2a2c30" stroke-width=".8"/>
+<circle cx="100" cy="100" r="82" fill="none" stroke="#26282b" stroke-width=".8"/>
+
+<circle cx="100" cy="100" r="78" fill="#0b0c0d" stroke="#6b6f75" stroke-width="1.2"/>
+<circle cx="100" cy="100" r="73" fill="none" stroke="url(#fg-g)" stroke-width="5"/>
+<circle cx="100" cy="100" r="69" fill="url(#fg-f)"/>
+<path d="M43.28,132.75A65.5,65.5 0 0 1 34.5,100" fill="none" stroke="#b3261e" stroke-width="2.6" stroke-linecap="butt"/>
+<line x1="52.37" y1="127.5" x2="45.44" y2="131.5" stroke="#ff6b5e" stroke-width="2" stroke-linecap="round"/>
+<line x1="43.01" y1="115.27" x2="39.15" y2="116.31" stroke="#ff6b5e" stroke-width="1" stroke-linecap="round"/>
+<line x1="41" y1="100" x2="37" y2="100" stroke="#ff6b5e" stroke-width="1" stroke-linecap="round"/>
+<line x1="43.01" y1="84.73" x2="39.15" y2="83.69" stroke="#cfd2d7" stroke-width="1" stroke-linecap="round"/>
+<line x1="52.37" y1="72.5" x2="45.44" y2="68.5" stroke="#cfd2d7" stroke-width="2" stroke-linecap="round"/>
+<line x1="58.28" y1="58.28" x2="55.45" y2="55.45" stroke="#cfd2d7" stroke-width="1" stroke-linecap="round"/>
+<line x1="70.5" y1="48.9" x2="68.5" y2="45.44" stroke="#cfd2d7" stroke-width="1" stroke-linecap="round"/>
+<line x1="84.73" y1="43.01" x2="83.69" y2="39.15" stroke="#cfd2d7" stroke-width="1" stroke-linecap="round"/>
+<line x1="100" y1="45" x2="100" y2="37" stroke="#cfd2d7" stroke-width="2" stroke-linecap="round"/>
+<line x1="115.27" y1="43.01" x2="116.31" y2="39.15" stroke="#cfd2d7" stroke-width="1" stroke-linecap="round"/>
+<line x1="129.5" y1="48.9" x2="131.5" y2="45.44" stroke="#cfd2d7" stroke-width="1" stroke-linecap="round"/>
+<line x1="141.72" y1="58.28" x2="144.55" y2="55.45" stroke="#cfd2d7" stroke-width="1" stroke-linecap="round"/>
+<line x1="147.63" y1="72.5" x2="154.56" y2="68.5" stroke="#cfd2d7" stroke-width="2" stroke-linecap="round"/>
+<line x1="156.99" y1="84.73" x2="160.85" y2="83.69" stroke="#cfd2d7" stroke-width="1" stroke-linecap="round"/>
+<line x1="159" y1="100" x2="163" y2="100" stroke="#cfd2d7" stroke-width="1" stroke-linecap="round"/>
+<line x1="156.99" y1="115.27" x2="160.85" y2="116.31" stroke="#cfd2d7" stroke-width="1" stroke-linecap="round"/>
+<line x1="147.63" y1="127.5" x2="154.56" y2="131.5" stroke="#cfd2d7" stroke-width="2" stroke-linecap="round"/>
+<text x="61.89" y="126" font-size="12" fill="#ff8a80" font-family="'Barlow Condensed','Arial Narrow',sans-serif" font-weight="700" text-anchor="middle">E</text>
+<text x="138.11" y="126" font-size="12" fill="#cfd2d7" font-family="'Barlow Condensed','Arial Narrow',sans-serif" font-weight="700" text-anchor="middle">F</text>
+<text x="100" y="60" font-size="11" fill="#cfd2d7" font-family="'Barlow Condensed','Arial Narrow',sans-serif" font-weight="700" text-anchor="middle">½</text>
+<path d="M100,70.5q-5,7.2 -5,10.6a5,5 0 0 0 10,0q0,-3.4 -5,-10.6z" fill="#8f9298" opacity=".85"/>
+
+<g transform="rotate(32 100 100)">
+<path d="M97.8,104L100,43L102.2,104L101.5,114L98.5,114Z" fill="#000" opacity=".4" transform="translate(1.6 2)"/>
+<path d="M97.8,104L100,43L102.2,104L101.5,114L98.5,114Z" fill="url(#fg-n)" stroke="#5a4410" stroke-width=".4"/>
+</g>
+<circle cx="100" cy="100" r="9" fill="url(#fg-g)" stroke="#6d7076" stroke-width=".6"/>
+<circle cx="100" cy="100" r="5.6" fill="#17181a" stroke="#b8902a" stroke-width="1.2"/>
+<circle cx="100" cy="100" r="2" fill="#5d6066"/>
+<circle cx="100" cy="100" r="97" fill="url(#fg-h)"/>
+</g>
+</svg>
