@@ -41,9 +41,10 @@ h2{font-size:1.25rem;margin:0 0 10px}
 .stat .note{margin:0}
 section{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:16px}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.row>*{min-width:0}
 .field{margin-bottom:8px}
 label,.lbl{display:block;font-size:.85rem;color:var(--muted);margin:0 0 3px}
-input,select{width:100%;font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;min-height:44px}
+input,select{width:100%;min-width:0;font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;min-height:44px}
 button{font:inherit;cursor:pointer;min-height:44px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--text);padding:0 14px}
 button.primary{background:var(--accent);color:var(--accent-text);border-color:var(--accent);width:100%;font-weight:600}
 button.wide{width:100%;margin-top:8px}
@@ -58,6 +59,7 @@ button.warn{color:var(--danger);border-color:var(--danger)}
 .list .r{display:flex;align-items:center;gap:6px;text-align:right}
 .list .r .num{font-size:1.5rem;line-height:1}
 .list button{min-height:32px;padding:0 8px;border:none;color:var(--muted)}
+.list input.tare{width:84px;min-height:36px;padding:6px 8px}
 footer{display:flex;justify-content:space-between;align-items:center;gap:8px;color:var(--muted);font-size:.85rem}
 #splash{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;background:var(--bg);color:var(--text);cursor:pointer;animation:splashOut .4s ease 3s forwards}
 @keyframes splashOut{to{opacity:0;visibility:hidden}}
@@ -78,7 +80,8 @@ footer{display:flex;justify-content:space-between;align-items:center;gap:8px;col
 .tempbox input{flex:1;min-width:0}
 .tempbox button{flex:none;min-width:52px;padding:0 10px;font-weight:600}
 .result{border-left:10px solid var(--vol)}
-.result .meta{color:var(--muted);font-size:.9rem}
+.meta{color:var(--muted);font-size:.85rem}
+.result .meta{font-size:.9rem}
 .big{font-size:3.4rem;line-height:1;margin:2px 0 4px}
 .num{white-space:nowrap}
 .unit{font-size:1.4rem;color:var(--muted);margin-left:5px}
@@ -95,6 +98,14 @@ footer{display:flex;justify-content:space-between;align-items:center;gap:8px;col
 .tallyhead{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:4px}
 .tallyhead h2{margin:0}
 #tallyPanel .stat{margin-top:12px}
+details>*{box-sizing:border-box}
+details>summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:32px}
+details>summary::-webkit-details-marker{display:none}
+details>summary::after{content:"+";font-size:1.5rem;line-height:1;color:var(--muted)}
+details[open]>summary::after{content:"\2212"}
+details>summary h2{margin:0}
+details[open]>summary{margin-bottom:10px}
+h2 .meta{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-weight:400;letter-spacing:0;margin-left:6px}
 </style>
 </head>
 <body>
@@ -230,7 +241,7 @@ footer{display:flex;justify-content:space-between;align-items:center;gap:8px;col
 </section>
 
 <section id="historyCard" hidden>
-<h2>Session log</h2>
+<div class="tallyhead"><h2>Session log</h2><button type="button" class="small warn" id="clearLogBtn">Clear all</button></div>
 <ul class="list" id="historyList"></ul>
 </section>
 </div>
@@ -238,12 +249,27 @@ footer{display:flex;justify-content:space-between;align-items:center;gap:8px;col
 <!-- TAB 2: JUGS & FILL -->
 <div id="jugView" hidden>
 <section>
+<details id="libDetails">
+<summary><h2>My jugs<span class="meta" id="libCount"></span></h2></summary>
+<p class="note">Weigh each empty jug once and save its tare. Name each one to match the number on the jug. Saved on this phone.</p>
+<ul class="list" id="libList"></ul>
+<div class="row" style="margin-top:8px">
+<div><label for="newJugLabel">Jug number or name</label><input id="newJugLabel" maxlength="8" placeholder="e.g. 1" autocomplete="off"></div>
+<div><label for="newJugTare">Empty weight (kg)</label><input type="number" id="newJugTare" step="0.01" inputmode="decimal" placeholder="e.g. 1.45"></div>
+</div>
+<button type="button" class="primary" id="addLibJugBtn">Save jug</button>
+<p class="msg" id="libMsg"></p>
+</details>
+</section>
+
+<section>
 <h2>Pump-out jugs</h2>
-<p class="note">Weigh each jug on the scale in kg, then tap Add jug. The total is what came out of the car.</p>
+<p class="note">Pick the jug, weigh it full, and type the gross weight. After you tap Add jug, the next saved jug is picked for you.</p>
 <div class="row">
-<div><label for="jugTareWeight">Empty jug tare (kg)</label><input type="number" id="jugTareWeight" step="0.01" value="0" inputmode="decimal" placeholder="e.g. 1.45"></div>
+<div><label for="jugSel">Jug</label><select id="jugSel"></select></div>
 <div><label for="jugGrossWeight">Gross weight (kg)</label><input type="number" id="jugGrossWeight" step="0.01" inputmode="decimal" placeholder="e.g. 17.25"></div>
 </div>
+<div class="field" id="jugTareField"><label for="jugTareWeight">Empty jug tare (kg)</label><input type="number" id="jugTareWeight" step="0.01" value="0" inputmode="decimal" placeholder="e.g. 1.45"></div>
 <div class="row">
 <div><label for="jugSgInput">Fuel SG at 60°F</label><input type="number" id="jugSgInput" step="0.001" value="0.790" inputmode="decimal"></div>
 <div><label for="jugTemp">Fuel temp</label>
@@ -268,11 +294,13 @@ footer{display:flex;justify-content:space-between;align-items:center;gap:8px;col
 
 <section>
 <h2>Fill a jug to a target</h2>
-<p class="note">Enter the liters you want in the jug, then fill until the scale reads the gross target.</p>
+<p class="note">Pick the jug and enter the liters you want in it, then fill until the scale reads the gross target.</p>
 <div class="row">
+<div><label for="fillJugSel">Jug</label><select id="fillJugSel"></select></div>
 <div><label for="targetLiters">Liters to put in</label><input type="number" id="targetLiters" step="0.5" inputmode="decimal" placeholder="e.g. 20"></div>
-<div><label>SG used</label><div class="readout"><span>SG</span><strong id="targetActiveSgDisp">0.7900</strong></div></div>
 </div>
+<div class="field" id="fillTareField"><label for="fillTare">Empty jug tare (kg)</label><input type="number" id="fillTare" step="0.01" value="0" inputmode="decimal" placeholder="e.g. 1.45"></div>
+<div class="readout"><span>SG used</span><strong id="targetActiveSgDisp">0.7900</strong></div>
 <div class="pair">
 <div class="stat k"><div class="num" id="targetGrossKgOut">--</div><span>Gross scale target</span><div class="note" id="targetGrossSub">Incl. 0.00 kg tare</div></div>
 <div class="stat k wt"><div class="num" id="targetNetKgOut">--</div><span>Net fuel weight</span><div class="note" id="targetNetLbsOut">-- lbs net</div></div>
@@ -284,7 +312,7 @@ footer{display:flex;justify-content:space-between;align-items:center;gap:8px;col
 </section>
 </div>
 
-<footer><span>Works offline once loaded. Nothing you enter is saved when you close the app.</span></footer>
+<footer><span>Saved on this device only. Clearing your browser data erases it.</span></footer>
 </main>
 
 <script>
@@ -304,14 +332,20 @@ var TRACKS = [
   { name: 'Custom Track...', miles: 0 }
 ];
 var GAL = 3.785411784, LB = 0.45359237, KM = 1.609344;
+var KEY = 'fuelBurn.v1';
+// Every typed or picked value that is saved between visits.
+var FIELDS = ['trackSelect', 'customName', 'customMiles', 'fuelPreset', 'baseSgInput', 'fuelTemp', 'fuelIn', 'fuelOut',
+  'lapsRun', 'tankCap', 'jugSgInput', 'jugTemp', 'jugTareWeight', 'jugGrossWeight', 'jugSel', 'fillJugSel', 'fillTare', 'targetLiters'];
 
-var activeUnit = 'L', tempUnit = 'F', jugTempUnit = 'F';
+var activeUnit = 'L', tempUnit = 'F', jugTempUnit = 'F', curTab = 'burn';
 var activeBeta = 0.00060;   // thermal-expansion coefficient of the blend picked in the dropdown
 var pending = null;         // armed "tap again to confirm" action
+var jugs = [];              // saved jug library: { id, label, tare }
 var pumpedJugs = [], sessionLog = [];
 var last = { netL: 0, lPerLap: 0 };
 
 function $(id) { return document.getElementById(id); }
+function uid() { return Math.random().toString(36).slice(2, 9); }
 function esc(s) {
   return String(s).replace(/[&<>"']/g, function (c) {
     return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
@@ -326,7 +360,8 @@ TRACKS.forEach(function (t, i) {
 
 /* ---------- tabs ---------- */
 function showTab(which) {
-  var burn = which === 'burn';
+  var burn = which !== 'jug';
+  curTab = burn ? 'burn' : 'jug';
   $('burnView').hidden = !burn;
   $('jugView').hidden = burn;
   $('tabBurn').setAttribute('aria-pressed', burn);
@@ -366,6 +401,11 @@ function toggleTemp(inputId, btnId, getUnit, setUnitFn) {
     setUnitFn('F'); $(btnId).textContent = '°F';
     if (!isNaN(cur)) inp.value = (cur * 9 / 5 + 32).toFixed(0);
   }
+}
+
+function arm(key) {
+  pending = key; renderLog(); renderJugTally();
+  setTimeout(function () { if (pending === key) { pending = null; renderLog(); renderJugTally(); } }, 3000);
 }
 
 /* ---------- burn per lap ---------- */
@@ -434,6 +474,7 @@ $('clearBtn').onclick = function () {
 
 function renderLog() {
   $('historyCard').hidden = !sessionLog.length;
+  $('clearLogBtn').textContent = pending === 'log' ? 'Tap again to clear' : 'Clear all';
   $('historyList').innerHTML = sessionLog.map(function (e, i) {
     return '<li><div><strong>' + esc(e.name) + '</strong><div class="meta">' + esc(e.laps) + ' laps · ' + esc(e.unitInfo) +
       ' · ' + e.net.toFixed(1) + ' L net</div></div>' +
@@ -455,7 +496,7 @@ $('saveBtn').onclick = function () {
     net: last.netL,
     perLap: last.lPerLap
   });
-  renderLog();
+  pending = null; renderLog();
 };
 
 $('historyList').onclick = function (e) {
@@ -464,9 +505,102 @@ $('historyList').onclick = function (e) {
   renderLog();
 };
 
+$('clearLogBtn').onclick = function () {
+  if (pending === 'log') { sessionLog = []; pending = null; renderLog(); }
+  else arm('log');
+};
+
+/* ---------- saved jugs (tare once) ---------- */
+function jugName(j) { return 'Jug ' + j.label; }
+function jugById(id) { return jugs.filter(function (j) { return j.id === id; })[0]; }
+function sortJugs() {
+  jugs.sort(function (a, b) { return a.label.localeCompare(b.label, undefined, { numeric: true }); });
+}
+function tareOf(selId, inputId) {
+  var v = $(selId).value;
+  if (v === 'other') return parseFloat($(inputId).value) || 0;
+  var j = jugById(v);
+  return j ? j.tare : 0;
+}
+
+function syncTareFields() {
+  $('jugTareField').hidden = $('jugSel').value !== 'other';
+  $('fillTareField').hidden = $('fillJugSel').value !== 'other';
+}
+
+function renderJugSelects() {
+  var html = jugs.map(function (j) {
+    return '<option value="' + j.id + '">' + esc(jugName(j)) + ' · ' + j.tare.toFixed(2) + ' kg</option>';
+  }).join('') + '<option value="other">Other (type tare)</option>';
+  ['jugSel', 'fillJugSel'].forEach(function (id) {
+    var el = $(id), cur = el.value;
+    el.innerHTML = html;
+    el.value = cur;                                   // keep the pick if it still exists
+    if (el.selectedIndex < 0) el.value = jugs.length ? jugs[0].id : 'other';
+  });
+  syncTareFields();
+}
+
+function renderLib() {
+  $('libCount').textContent = jugs.length ? jugs.length + ' saved' : 'none saved yet';
+  $('libList').innerHTML = jugs.map(function (j) {
+    return '<li><strong>' + esc(jugName(j)) + '</strong><div class="r">' +
+      '<input class="tare" type="number" step="0.01" inputmode="decimal" value="' + j.tare + '" data-id="' + j.id + '" aria-label="Tare for ' + esc(jugName(j)) + ' in kg">' +
+      '<span class="meta">kg</span><button type="button" class="small" data-del="' + j.id + '">Remove</button></div></li>';
+  }).join('');
+  renderJugSelects();
+}
+
+$('addLibJugBtn').onclick = function () {
+  var label = $('newJugLabel').value.trim().replace(/^jug\s*/i, '');
+  var tare = parseFloat($('newJugTare').value);
+  if (!label) { $('libMsg').textContent = 'Enter the number or name on the jug.'; return; }
+  if (!(tare > 0)) { $('libMsg').textContent = 'Enter the empty weight in kg.'; return; }
+  if (jugs.some(function (j) { return j.label.toLowerCase() === label.toLowerCase(); })) {
+    $('libMsg').textContent = 'You already saved that jug. Change its weight in the list.'; return;
+  }
+  $('libMsg').textContent = '';
+  var j = { id: uid(), label: label, tare: tare };
+  jugs.push(j); sortJugs();
+  var firstJug = jugs.length === 1;
+  renderLib();
+  if (firstJug) { $('jugSel').value = j.id; $('fillJugSel').value = j.id; syncTareFields(); calculateJug(); }
+  var next = /^\d+$/.test(label) ? String(parseInt(label, 10) + 1) : '';   // numbered jugs: ready for the next one
+  $('newJugLabel').value = next; $('newJugTare').value = '';
+  ($('newJugLabel').value ? $('newJugTare') : $('newJugLabel')).focus();
+};
+
+$('libList').onclick = function (e) {
+  var b = e.target.closest('button'); if (!b || !b.dataset.del) return;
+  jugs = jugs.filter(function (j) { return j.id !== b.dataset.del; });
+  renderLib(); calculateJug();
+};
+
+$('libList').onchange = function (e) {
+  var inp = e.target.closest('input'); if (!inp) return;
+  var j = jugById(inp.dataset.id), t = parseFloat(inp.value);
+  if (!j) return;
+  if (!(t > 0)) { inp.value = j.tare; return; }   // ignore blanks and zeros
+  j.tare = t; renderJugSelects(); calculateJug();
+};
+
+function advanceJug() {
+  if (!jugs.length) return;
+  var used = pumpedJugs.map(function (p) { return p.jugId; });
+  var at = jugs.map(function (j) { return j.id; }).indexOf($('jugSel').value);
+  for (var k = 1; k <= jugs.length; k++) {
+    var j = jugs[(at + k + jugs.length) % jugs.length];
+    if (used.indexOf(j.id) < 0) { $('jugSel').value = j.id; syncTareFields(); return; }
+  }
+}
+
+$('jugSel').onchange = function () { syncTareFields(); calculateJug(); };
+$('fillJugSel').onchange = function () { syncTareFields(); calculateJug(); };
+
 /* ---------- jugs & fill ---------- */
 function calculateJug() {
-  var tareKg = parseFloat($('jugTareWeight').value) || 0;
+  var tareKg = tareOf('jugSel', 'jugTareWeight');
+  var fillTareKg = tareOf('fillJugSel', 'fillTare');
   var grossKg = parseFloat($('jugGrossWeight').value) || 0;
   var targetL = parseFloat($('targetLiters').value) || 0;
   var sg = getJugLiveSg();
@@ -482,14 +616,14 @@ function calculateJug() {
   $('jugNetLbsOut').textContent = (netKg * 2.20462262).toFixed(2) + ' lbs';
 
   if (targetL > 0) {
-    var reqKg = targetL * sg, grossT = tareKg + reqKg;
+    var reqKg = targetL * sg, grossT = fillTareKg + reqKg;
     $('targetGrossKgOut').textContent = grossT.toFixed(2) + ' kg';
-    $('targetGrossSub').textContent = (grossT * 2.20462262).toFixed(2) + ' lbs (incl. ' + tareKg.toFixed(2) + ' kg tare)';
+    $('targetGrossSub').textContent = (grossT * 2.20462262).toFixed(2) + ' lbs (incl. ' + fillTareKg.toFixed(2) + ' kg tare)';
     $('targetNetKgOut').textContent = reqKg.toFixed(2) + ' kg';
     $('targetNetLbsOut').textContent = (reqKg * 2.20462262).toFixed(2) + ' lbs net';
   } else {
     $('targetGrossKgOut').textContent = '--';
-    $('targetGrossSub').textContent = 'Incl. ' + tareKg.toFixed(2) + ' kg tare';
+    $('targetGrossSub').textContent = 'Incl. ' + fillTareKg.toFixed(2) + ' kg tare';
     $('targetNetKgOut').textContent = '--';
     $('targetNetLbsOut').textContent = '-- lbs net';
   }
@@ -505,23 +639,18 @@ function renderJugTally() {
   $('jugCount').textContent = pumpedJugs.length;
   $('jugTallyList').innerHTML = pumpedJugs.map(function (j, i) {
     totalL += j.liters; totalKg += j.netKg;
-    return '<li><div><strong>Jug ' + (i + 1) + '</strong> · ' + j.netKg.toFixed(2) + ' kg net' +
+    return '<li><div><strong>' + esc(j.label) + '</strong> · ' + j.netKg.toFixed(2) + ' kg net' +
       '<div class="meta">Gross ' + j.grossKg.toFixed(2) + ' kg · tare ' + j.tareKg.toFixed(2) + ' kg · SG ' + j.sg.toFixed(4) + '</div></div>' +
       '<div class="r"><span class="num">' + j.liters.toFixed(2) + '<span class="unit">L</span></span>' +
-      '<button type="button" class="small" data-jug="' + i + '" aria-label="Remove jug ' + (i + 1) + '">Remove</button></div></li>';
+      '<button type="button" class="small" data-jug="' + i + '" aria-label="Remove ' + esc(j.label) + '">Remove</button></div></li>';
   }).join('');
   $('totalPumpedLiters').textContent = totalL.toFixed(2) + ' L';
   $('totalPumpedSub').textContent = totalKg.toFixed(2) + ' kg net · ' + (totalL / GAL).toFixed(2) + ' US gal across ' +
     pumpedJugs.length + (pumpedJugs.length > 1 ? ' jugs' : ' jug');
 }
 
-function arm(key) {
-  pending = key; renderJugTally();
-  setTimeout(function () { if (pending === key) { pending = null; renderJugTally(); } }, 3000);
-}
-
 $('addJugBtn').onclick = function () {
-  var tareKg = parseFloat($('jugTareWeight').value) || 0;
+  var tareKg = tareOf('jugSel', 'jugTareWeight');
   var grossKg = parseFloat($('jugGrossWeight').value) || 0;
   var sg = getJugLiveSg();
   var netKg = grossKg - tareKg;
@@ -529,8 +658,13 @@ $('addJugBtn').onclick = function () {
     $('jugMsg').textContent = 'Enter a gross weight that is heavier than the tare.'; return;
   }
   $('jugMsg').textContent = '';
-  pumpedJugs.push({ tareKg: tareKg, grossKg: grossKg, netKg: netKg, liters: netKg / sg, sg: sg });
-  $('jugGrossWeight').value = '';   // ready for the next jug; tare stays
+  var jug = jugById($('jugSel').value);
+  pumpedJugs.push({
+    jugId: jug ? jug.id : null, label: jug ? jugName(jug) : 'Other jug',
+    tareKg: tareKg, grossKg: grossKg, netKg: netKg, liters: netKg / sg, sg: sg
+  });
+  $('jugGrossWeight').value = '';   // ready for the next jug
+  advanceJug();
   pending = null;
   calculateJug(); renderJugTally();
 };
@@ -563,7 +697,7 @@ $('sendTotalOutBtn').onclick = function () {
 };
 
 $('clearJugBtn').onclick = function () {
-  $('jugGrossWeight').value = ''; $('targetLiters').value = ''; $('jugMsg').textContent = '';
+  $('targetLiters').value = '';
   calculateJug();
 };
 
@@ -619,14 +753,73 @@ $('trackSelect').onchange = updateTrackInfo;
 ['fuelIn', 'fuelOut', 'lapsRun', 'tankCap', 'customMiles', 'fuelTemp'].forEach(function (id) {
   $(id).addEventListener('input', function () { $('logMsg').textContent = ''; if (id === 'customMiles') updateTrackInfo(); else calculate(); });
 });
-['jugTareWeight', 'jugGrossWeight', 'jugSgInput', 'jugTemp', 'targetLiters'].forEach(function (id) {
+['jugTareWeight', 'jugGrossWeight', 'jugSgInput', 'jugTemp', 'targetLiters', 'fillTare'].forEach(function (id) {
   $(id).addEventListener('input', calculateJug);
 });
 
 $('splash').onclick = function () { this.style.display = 'none'; };
 
+/* ---------- saved between visits (this device only) ---------- */
+function isNum(v) { return typeof v === 'number' && isFinite(v); }
+function str(v, fallback) { return typeof v === 'string' ? v : fallback; }
+
+function save() {
+  try {
+    var f = {};
+    FIELDS.forEach(function (id) { f[id] = $(id).value; });
+    localStorage.setItem(KEY, JSON.stringify({
+      v: 1, tab: curTab, unit: activeUnit, tempUnit: tempUnit, jugTempUnit: jugTempUnit, beta: activeBeta,
+      fields: f, jugs: jugs, pumped: pumpedJugs, log: sessionLog
+    }));
+  } catch (e) {}
+}
+
+function restore() {
+  var d;
+  try { d = JSON.parse(localStorage.getItem(KEY)); } catch (e) { return false; }
+  if (!d || typeof d !== 'object') return false;
+
+  if (Array.isArray(d.jugs)) {
+    jugs = d.jugs.filter(function (j) { return j && typeof j.id === 'string' && typeof j.label === 'string' && j.label && isNum(j.tare) && j.tare > 0; })
+      .map(function (j) { return { id: j.id, label: j.label, tare: j.tare }; });
+    sortJugs();
+  }
+  if (Array.isArray(d.pumped)) {
+    pumpedJugs = d.pumped.filter(function (j) { return j && isNum(j.tareKg) && isNum(j.grossKg) && isNum(j.netKg) && isNum(j.liters) && isNum(j.sg); })
+      .map(function (j) { return { jugId: str(j.jugId, null), label: str(j.label, 'Jug'), tareKg: j.tareKg, grossKg: j.grossKg, netKg: j.netKg, liters: j.liters, sg: j.sg }; });
+  }
+  if (Array.isArray(d.log)) {
+    sessionLog = d.log.filter(function (e) { return e && isNum(e.net) && isNum(e.perLap); })
+      .map(function (e) { return { name: String(e.name), laps: String(e.laps), unitInfo: String(e.unitInfo), net: e.net, perLap: e.perLap }; });
+  }
+  if (['L', 'gal', 'kg', 'lbs'].indexOf(d.unit) >= 0) activeUnit = d.unit;
+  tempUnit = d.tempUnit === 'C' ? 'C' : 'F';
+  jugTempUnit = d.jugTempUnit === 'C' ? 'C' : 'F';
+  if (isNum(d.beta) && d.beta > 0) activeBeta = d.beta;
+  curTab = d.tab === 'jug' ? 'jug' : 'burn';
+  $('tempUnitBtn').textContent = '°' + tempUnit;
+  $('jugTempUnitBtn').textContent = '°' + jugTempUnit;
+
+  renderLib();   // builds the jug pickers before their saved picks are put back
+  var f = d.fields && typeof d.fields === 'object' ? d.fields : {};
+  FIELDS.forEach(function (id) { if (typeof f[id] === 'string') $(id).value = f[id]; });
+  ['trackSelect', 'fuelPreset'].forEach(function (id) { if ($(id).selectedIndex < 0) $(id).selectedIndex = 0; });
+  renderJugSelects();   // falls back to a sensible pick if a saved jug no longer exists
+  return true;
+}
+
+if (!restore()) renderLib();
+setUnit(activeUnit);
 updateTrackInfo();
 calculateJug();
+renderLog();
+renderJugTally();
+$('libDetails').open = jugs.length === 0;
+showTab(curTab);
+
+['input', 'change', 'click'].forEach(function (t) { document.addEventListener(t, save); });
+document.addEventListener('visibilitychange', save);
+window.addEventListener('pagehide', save);
 </script>
 <script>
 if ('serviceWorker' in navigator) {
