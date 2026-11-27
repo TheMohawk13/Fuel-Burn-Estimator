@@ -52,10 +52,6 @@ Everything you enter is saved on **your own device only**: your setup, the sessi
 
    $$\text{Liters/Lap} = \frac{\text{Fuel Put In (L)} - \text{Fuel Pumped Out (L)}}{\text{Laps Completed}}$$
 
-## Updating the site (for the site owner)
-
-Upload the changed files to the repository, then raise the version number in `sw.js` (for example from `fuel-burn-v7` to `fuel-burn-v8`) so phones pick up the new version. iPhones save the home screen icon when it is added, so delete the old shortcut and add it again to see a new icon.
-
 ## License
 
 Copyright (c) 2026 Ryne Hoover Transportation. All rights reserved. See `LICENSE`.
