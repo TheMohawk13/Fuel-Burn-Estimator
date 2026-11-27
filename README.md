@@ -42,7 +42,7 @@ Everything you enter is saved on **your own device only**: your setup, the sessi
 
    $$\text{SG}_{\text{adj}} = \text{SG}_{60^\circ\text{F}} - \left[\beta \times (T_{^\circ\text{F}} - 60)\right]$$
 
-   $\beta$ is 0.00050 per °F for the preset blends and 0.00055 per °F for Custom SG.
+   $\beta$ is 0.00050 per °F for every preset blend. Custom SG keeps whichever coefficient was already in use.
 
 2. **Weight to volume**
 
@@ -54,4 +54,4 @@ Everything you enter is saved on **your own device only**: your setup, the sessi
 
 ## Updating the site (for the site owner)
 
-Upload the changed files to the repository, then raise the version number in `sw.js` (for example from `fuel-burn-v5` to `fuel-burn-v6`) so phones pick up the new version. iPhones save the home screen icon when it is added, so delete the old shortcut and add it again to see a new icon.
+Upload the changed files to the repository, then raise the version number in `sw.js` (for example from `fuel-burn-v6` to `fuel-burn-v7`) so phones pick up the new version. iPhones save the home screen icon when it is added, so delete the old shortcut and add it again to see a new icon.

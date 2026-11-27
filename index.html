@@ -16,8 +16,7 @@
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
 --bg:#eceae5;--surface:#fbfaf8;--text:#1b1c1e;--muted:#66686c;--line:#d3d0c8;--accent:#1b1c1e;--accent-text:#fbfaf8;--danger:#b3261e;
 --vol:#f2c200;--wt:#2d7fd3;color-scheme:light}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17181a;--surface:#222427;--text:#ecebe7;--muted:#9a9ca1;--line:#383b3f;--accent:#ecebe7;--accent-text:#17181a;--danger:#ff8a80;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#17181a;--surface:#222427;--text:#ecebe7;--muted:#9a9ca1;--line:#383b3f;--accent:#ecebe7;--accent-text:#17181a;--danger:#ff8a80;color-scheme:dark}
+@media (prefers-color-scheme:dark){:root{--bg:#17181a;--surface:#222427;--text:#ecebe7;--muted:#9a9ca1;--line:#383b3f;--accent:#ecebe7;--accent-text:#17181a;--danger:#ff8a80;color-scheme:dark}}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *,*::before,*::after{box-sizing:inherit}
 [hidden]{display:none!important}
@@ -75,7 +74,7 @@ footer{display:flex;justify-content:space-between;align-items:center;gap:8px;col
 .readout{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:44px;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);margin-bottom:8px;font-size:.95rem}
 .readout span{color:var(--muted)}
 .readout strong{font-variant-numeric:tabular-nums}
-.row .readout,.row .tempbox{margin-bottom:0}
+.row .tempbox{margin-bottom:0}
 .tempbox{display:flex;gap:8px;margin-bottom:8px}
 .tempbox input{flex:1;min-width:0}
 .tempbox button{flex:none;min-width:52px;padding:0 10px;font-weight:600}
@@ -197,7 +196,7 @@ h2 .meta{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-w
 <option value="0.712" data-beta="0.00050" selected>VP IMSA 100 E10</option>
 <option value="0.750" data-beta="0.00050" data-est="1">VP IMSA E20C (est.)</option>
 <option value="0.765" data-beta="0.00050">VP MS100</option>
-<option value="custom" data-beta="0.00055">Custom SG</option>
+<option value="custom">Custom SG</option>
 </select></div>
 <p class="note" id="presetNote" hidden>E20C density is an estimate (no spec sheet found). Type a measured SG if you have one.</p>
 <div class="row">
@@ -330,7 +329,7 @@ var TRACKS = [
   { name: 'Circuit of the Americas (COTA)', miles: 3.426 },
   { name: 'Custom Track...', miles: 0 }
 ];
-var GAL = 3.785411784, LB = 0.45359237, KM = 1.609344;
+var GAL = 3.785411784, LB = 0.45359237, KM = 1.609344, KG_TO_LB = 1 / LB;
 var KEY = 'fuelBurn.v1';
 // Every typed or picked value that is saved between visits.
 var FIELDS = ['trackSelect', 'customName', 'customMiles', 'fuelPreset', 'baseSgInput', 'fuelTemp', 'fuelIn', 'fuelOut',
@@ -373,12 +372,14 @@ $('tabJug').onclick = function () { showTab('jug'); };
 
 /* ---------- shared helpers ---------- */
 function adjustedSG(baseId, tempId, unit) {
-  var base = parseFloat($(baseId).value) || 0.712;
+  var base = parseFloat($(baseId).value);
+  if (!(base > 0)) return 0;   // no SG typed: nothing to calculate with
   var raw = parseFloat($(tempId).value);
   if (isNaN(raw)) return base;
   var tF = unit === 'F' ? raw : raw * 9 / 5 + 32;
   return Math.max(0.5, base - activeBeta * (tF - 60));
 }
+function sgText(sg) { return sg > 0 ? sg.toFixed(4) : '--'; }
 function getAdjustedSG() { return adjustedSG('baseSgInput', 'fuelTemp', tempUnit); }
 function getJugLiveSg() { return adjustedSG('jugSgInput', 'jugTemp', jugTempUnit); }
 
@@ -442,7 +443,7 @@ function calculate() {
   var laps = parseFloat($('lapsRun').value) || 0;
 
   var sg = getAdjustedSG();
-  $('adjustedSgDisplay').textContent = sg.toFixed(4);
+  $('adjustedSgDisplay').textContent = sgText(sg);
 
   var inL = toLiters(rawIn, activeUnit, sg);
   var outL = toLiters(rawOut, activeUnit, sg);
@@ -452,14 +453,14 @@ function calculate() {
   var netL = Math.max(0, inL - outL);
   var lPerLap = laps > 0 ? netL / laps : 0;
   var kgPerLap = lPerLap * sg;
-  var lbsPerLap = kgPerLap * 2.20462;
+  var lbsPerLap = kgPerLap * KG_TO_LB;
   var totalKm = laps * km;
   var lPerKm = totalKm > 0 ? netL / totalKm : 0;
   var maxLaps = (tankL > 0 && lPerLap > 0) ? (tankL / lPerLap).toFixed(1) : '--';
 
   last = { netL: netL, lPerLap: lPerLap };
   $('lPerLap').innerHTML = lPerLap.toFixed(2) + '<span class="unit">L</span>';
-  $('weightPerLap').textContent = kgPerLap.toFixed(2) + ' kg · ' + lbsPerLap.toFixed(2) + ' lbs per lap';
+  $('weightPerLap').textContent = sg > 0 ? kgPerLap.toFixed(2) + ' kg · ' + lbsPerLap.toFixed(2) + ' lbs per lap' : '-- kg · -- lbs per lap';
   $('netBurned').innerHTML = netL.toFixed(1) + '<span class="unit">L</span>';
   $('lPerKm').textContent = lPerKm.toFixed(2);
   $('estStint').textContent = maxLaps;
@@ -483,11 +484,12 @@ function renderLog() {
 }
 
 $('saveBtn').onclick = function () {
+  var weight = activeUnit === 'kg' || activeUnit === 'lbs';
+  if (weight && !(getAdjustedSG() > 0)) { $('logMsg').textContent = 'Enter the fuel SG first.'; return; }
   if (!(last.lPerLap > 0)) { $('logMsg').textContent = 'Enter fuel in, fuel out and laps first.'; return; }
   $('logMsg').textContent = '';
   var t = TRACKS[parseInt($('trackSelect').value, 10)];
   var name = t.miles === 0 ? ($('customName').value.trim() || 'Custom') : t.name.split(' (')[0];
-  var weight = activeUnit === 'kg' || activeUnit === 'lbs';
   sessionLog.unshift({
     name: name,
     laps: $('lapsRun').value || 0,
@@ -529,7 +531,7 @@ function syncTareFields() {
 
 function renderJugSelects() {
   var html = jugs.map(function (j) {
-    return '<option value="' + j.id + '">' + esc(jugName(j)) + ' · ' + j.tare.toFixed(2) + ' kg</option>';
+    return '<option value="' + esc(j.id) + '">' + esc(jugName(j)) + ' · ' + j.tare.toFixed(2) + ' kg</option>';
   }).join('') + '<option value="other">Other (type tare)</option>';
   ['jugSel', 'fillJugSel'].forEach(function (id) {
     var el = $(id), cur = el.value;
@@ -544,8 +546,8 @@ function renderLib() {
   $('libCount').textContent = jugs.length ? jugs.length + ' saved' : 'none saved yet';
   $('libList').innerHTML = jugs.map(function (j) {
     return '<li><strong>' + esc(jugName(j)) + '</strong><div class="r">' +
-      '<input class="tare" type="number" step="0.01" inputmode="decimal" value="' + j.tare + '" data-id="' + j.id + '" aria-label="Tare for ' + esc(jugName(j)) + ' in kg">' +
-      '<span class="meta">kg</span><button type="button" class="small" data-del="' + j.id + '">Remove</button></div></li>';
+      '<input class="tare" type="number" step="0.01" inputmode="decimal" value="' + j.tare + '" data-id="' + esc(j.id) + '" aria-label="Tare for ' + esc(jugName(j)) + ' in kg">' +
+      '<span class="meta">kg</span><button type="button" class="small" data-del="' + esc(j.id) + '">Remove</button></div></li>';
   }).join('');
   renderJugSelects();
 }
@@ -604,22 +606,22 @@ function calculateJug() {
   var targetL = parseFloat($('targetLiters').value) || 0;
   var sg = getJugLiveSg();
 
-  $('jugLiveSgDisp').textContent = sg.toFixed(4);
-  $('targetActiveSgDisp').textContent = sg.toFixed(4);
+  $('jugLiveSgDisp').textContent = sgText(sg);
+  $('targetActiveSgDisp').textContent = sgText(sg);
 
   var netKg = grossKg > 0 ? Math.max(0, grossKg - tareKg) : 0;
   var liters = sg > 0 ? netKg / sg : 0;
-  $('jugLitersOut').textContent = liters.toFixed(2) + ' L';
-  $('jugGalOut').textContent = (liters / GAL).toFixed(2) + ' US gal';
+  $('jugLitersOut').textContent = sg > 0 ? liters.toFixed(2) + ' L' : '--';
+  $('jugGalOut').textContent = sg > 0 ? (liters / GAL).toFixed(2) + ' US gal' : '-- US gal';
   $('jugNetKgOut').textContent = netKg.toFixed(2) + ' kg';
-  $('jugNetLbsOut').textContent = (netKg * 2.20462262).toFixed(2) + ' lbs';
+  $('jugNetLbsOut').textContent = (netKg * KG_TO_LB).toFixed(2) + ' lbs';
 
-  if (targetL > 0) {
+  if (targetL > 0 && sg > 0) {
     var reqKg = targetL * sg, grossT = fillTareKg + reqKg;
     $('targetGrossKgOut').textContent = grossT.toFixed(2) + ' kg';
-    $('targetGrossSub').textContent = (grossT * 2.20462262).toFixed(2) + ' lbs (incl. ' + fillTareKg.toFixed(2) + ' kg tare)';
+    $('targetGrossSub').textContent = (grossT * KG_TO_LB).toFixed(2) + ' lbs (incl. ' + fillTareKg.toFixed(2) + ' kg tare)';
     $('targetNetKgOut').textContent = reqKg.toFixed(2) + ' kg';
-    $('targetNetLbsOut').textContent = (reqKg * 2.20462262).toFixed(2) + ' lbs net';
+    $('targetNetLbsOut').textContent = (reqKg * KG_TO_LB).toFixed(2) + ' lbs net';
   } else {
     $('targetGrossKgOut').textContent = '--';
     $('targetGrossSub').textContent = 'Incl. ' + fillTareKg.toFixed(2) + ' kg tare';
@@ -653,7 +655,8 @@ $('addJugBtn').onclick = function () {
   var grossKg = parseFloat($('jugGrossWeight').value) || 0;
   var sg = getJugLiveSg();
   var netKg = grossKg - tareKg;
-  if (!(grossKg > 0) || !(netKg > 0) || !(sg > 0)) {
+  if (!(sg > 0)) { $('jugMsg').textContent = 'Enter the fuel SG first.'; return; }
+  if (!(grossKg > 0) || !(netKg > 0)) {
     $('jugMsg').textContent = 'Enter a gross weight that is heavier than the tare.'; return;
   }
   $('jugMsg').textContent = '';
@@ -685,6 +688,10 @@ $('sendTotalOutBtn').onclick = function () {
   if (activeUnit !== 'L') {
     // Pump-out is in liters, so switch to liters, converting what's already typed so it keeps its meaning.
     var sg = getAdjustedSG();
+    if ((activeUnit === 'kg' || activeUnit === 'lbs') && !(sg > 0)) {
+      $('jugMsg').textContent = 'Set the fuel SG on the Burn tab first.'; return;
+    }
+    $('jugMsg').textContent = '';
     ['fuelIn', 'tankCap'].forEach(function (id) {
       var v = parseFloat($(id).value);
       if (v > 0) $(id).value = +toLiters(v, activeUnit, sg).toFixed(2);
@@ -702,7 +709,8 @@ $('clearJugBtn').onclick = function () {
 
 $('applySgBtn').onclick = function () {
   var sg = parseFloat($('jugSgInput').value);
-  if (!(sg > 0)) return;
+  if (!(sg > 0)) { $('jugMsg').textContent = 'Enter the fuel SG first.'; return; }
+  $('jugMsg').textContent = '';
   $('baseSgInput').value = String(sg);
   var pick = presetFor(sg);
   $('fuelPreset').value = pick;
@@ -758,7 +766,7 @@ function syncPresetUI(keepJugPick) {
 function choosePreset(value) {
   $('fuelPreset').value = value;
   var o = $('fuelPreset').options[$('fuelPreset').selectedIndex];
-  activeBeta = parseFloat(o.dataset.beta) || activeBeta;
+  if (value !== 'custom') activeBeta = parseFloat(o.dataset.beta) || activeBeta;   // Custom SG keeps the coefficient in use
   if (value !== 'custom') {
     $('baseSgInput').value = value;
     $('jugSgInput').value = value;
