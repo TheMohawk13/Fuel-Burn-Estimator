@@ -1,10 +1,13 @@
 <!DOCTYPE html>
+<!-- Fuel Burn Estimator. Copyright (c) 2026 Ryne Hoover Transportation. All rights reserved.
+     Copying, hosting or redistributing this code without written permission is not allowed. -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Fuel Burn Estimator</title>
 <meta name="theme-color" content="#1b1c1e">
+<meta name="build" content="UkhULUZCRS05MTY1NTA3Nzc0">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Fuel Burn Estimator">
@@ -160,10 +163,10 @@ h2 .meta{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-w
 </svg>
 <div class="sp-title num">Fuel Burn Estimator</div>
 <div class="sp-by">created by</div>
-<div class="sp-co num">Ryne Hoover Transportation</div>
+<div class="sp-co num">Ryne Hoover Transportation‍‌​​‌​​​‌​‌‌​​‌​‌​‌​‌​​​​​‌‌‌​‌‌‌​‌‌‌​‌​​</div>
 </div>
 <main>
-<h1>Fuel burn</h1>
+<h1 id="appTitle">Fuel burn</h1>
 <p class="sub">Pump-in vs. pump-out per lap, plus jug scale weight to liters.</p>
 
 <div class="seg c2" role="group" aria-label="Calculator">
@@ -796,6 +799,21 @@ $('trackSelect').onchange = updateTrackInfo;
 $('jugSgInput').addEventListener('input', function () { syncPresetUI(); });
 
 $('splash').onclick = function () { this.style.display = 'none'; };
+
+/* Tap the page title 7 times within 3 seconds to see who made this. */
+var titleTaps = [];
+$('appTitle').addEventListener('click', function () {
+  var now = Date.now();
+  titleTaps = titleTaps.filter(function (t) { return now - t < 3000; }).concat(now);
+  if (titleTaps.length < 7) return;
+  titleTaps = [];
+  var p = document.createElement('p');
+  p.className = 'note';
+  p.textContent = atob('RnVlbCBCdXJuIEVzdGltYXRvciB8IChjKSAyMDI2IFJ5bmUgSG9vdmVyIFRyYW5zcG9ydGF0aW9uIHwgUkhULUZCRS05MTY1NTA3Nzc0');
+  var sub = document.querySelector('.sub');
+  sub.parentNode.insertBefore(p, sub.nextSibling);
+  setTimeout(function () { p.remove(); }, 8000);
+});
 
 /* ---------- saved between visits (this device only) ---------- */
 function isNum(v) { return typeof v === 'number' && isFinite(v); }
