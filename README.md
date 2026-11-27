@@ -2,7 +2,7 @@
 
 Work out how much fuel a car burns per lap from what you put in and what you pump out, and turn jug scale weights into liters. Built for fuelers and engineers, remembers your jugs and your work, works offline, and looks and feels like the Tire Set Tracker.
 
-**Open it:** https://themohawk13.github.io/Fuel-Burn-Estimator
+**Open it:** [https://themohawk13.github.io/Fuel-Burn-Estimator](https://themohawk13.github.io/Fuel-Burn-Estimator/)
 
 Created by Ryne Hoover Transportation.
 
