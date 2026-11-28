@@ -19,7 +19,7 @@ After that it opens like an app and works without a signal.
 1. **Pick the track.** Choose one from the list, or **Custom Track...** and type its length in miles.
 2. **Pick how you measured the fuel.** **L** or **gal** if you read it off a pump, **kg** or **lbs** if you weighed it. The weight options also show the fuel blend and fuel temperature, because the same weight is a different volume when the fuel is warm. The blend list has VP IMSA 100 E10 (SG from VP's VP100 spec sheet), VP IMSA E20C, VP MS100 and Custom SG. VP doesn't publish a spec sheet for E20C, so its density is an estimate. Type a measured SG if you have one. The Jugs tab has the same fuel blend picker.
 3. **Enter the numbers.** Fuel put in, fuel pumped out, laps completed, and optionally the tank size.
-4. **Read the result.** Fuel used per lap (in liters, kg and lbs), net burned, liters per km, and the most laps a full tank would last.
+4. **Read the result.** Fuel used per lap (in liters, kg and lbs), net burned, liters per km, and the most laps a full tank would last. In **gal** mode the results are in gallons and miles per gallon instead.
 5. **Log session** adds it to the list below so you can compare runs. **Remove** takes an entry off.
 
 ## Jugs & fill

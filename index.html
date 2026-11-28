@@ -35,7 +35,7 @@ h2{font-size:1.25rem;margin:0 0 10px}
 .seg button{display:flex;flex-direction:column;align-items:flex-start;min-height:56px;padding:8px 10px;text-align:left;background:var(--surface)}
 .seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-text);border-color:var(--accent)}
 .seg small{opacity:.75;font-size:.8rem}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:16px}
 .stat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px}
 .stat .num{font-size:2rem;line-height:1}
 .stat span,.note{color:var(--muted);font-size:.85rem}
@@ -73,6 +73,7 @@ footer{display:flex;justify-content:space-between;align-items:center;gap:8px;col
 .sp-title{font-size:clamp(2rem,10vw,2.8rem);line-height:1}
 .sp-by{color:var(--muted);margin:10px 0 2px;font-size:.95rem}
 .sp-co{font-size:1.5rem;letter-spacing:.02em}
+.sp-beta{color:var(--muted);margin-top:14px;font-size:.8rem;letter-spacing:.2em;text-transform:uppercase}
 
 .readout{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:44px;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);margin-bottom:8px;font-size:.95rem}
 .readout span{color:var(--muted)}
@@ -87,7 +88,9 @@ footer{display:flex;justify-content:space-between;align-items:center;gap:8px;col
 .big{font-size:3.4rem;line-height:1;margin:2px 0 4px}
 .num{white-space:nowrap}
 .unit{font-size:1.4rem;color:var(--muted);margin-left:5px}
-.stat .unit{font-size:1rem;margin-left:3px}
+.stat .unit{font-size:.75rem;margin-left:2px}
+.result .stat{padding:10px 8px}
+.result .stat .num{font-size:clamp(1.2rem,5.8vw,2rem);white-space:nowrap}
 .list .unit{font-size:.85rem;margin-left:3px}
 .result .stats{margin:14px 0 0}
 .result .stat{background:var(--bg)}
@@ -164,6 +167,7 @@ h2 .meta{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-w
 <div class="sp-title num">Fuel Burn Estimator</div>
 <div class="sp-by">created by</div>
 <div class="sp-co num">Ryne Hoover Transportation‍‌​​‌​​​‌​‌‌​​‌​‌​‌​‌​​​​​‌‌‌​‌‌‌​‌‌‌​‌​​</div>
+<div class="sp-beta">Beta</div>
 </div>
 <main>
 <h1 id="appTitle">Fuel burn</h1>
@@ -229,7 +233,7 @@ h2 .meta{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-w
 <div class="meta" id="weightPerLap">0.00 kg · 0.00 lbs per lap</div>
 <div class="stats">
 <div class="stat"><div class="num" id="netBurned">0.0<span class="unit">L</span></div><span>Net burned</span></div>
-<div class="stat"><div class="num" id="lPerKm">0.00</div><span>Liters / km</span></div>
+<div class="stat"><div class="num" id="lPerKm">0.00</div><span id="econLbl">Liters / km</span></div>
 <div class="stat"><div class="num" id="estStint">--</div><span>Max laps / tank</span></div>
 </div>
 <div class="btnrow">
@@ -459,13 +463,17 @@ function calculate() {
   var lbsPerLap = kgPerLap * KG_TO_LB;
   var totalKm = laps * km;
   var lPerKm = totalKm > 0 ? netL / totalKm : 0;
+  var useGal = activeUnit === 'gal';        // gal mode reports gallons and miles per gallon; L, kg and lbs report liters
+  var vol = useGal ? GAL : 1, volUnit = useGal ? 'gal' : 'L';
+  var milesPerGal = netL > 0 ? (laps * getActiveMiles()) / (netL / GAL) : 0;
   var maxLaps = (tankL > 0 && lPerLap > 0) ? (tankL / lPerLap).toFixed(1) : '--';
 
   last = { netL: netL, lPerLap: lPerLap };
-  $('lPerLap').innerHTML = lPerLap.toFixed(2) + '<span class="unit">L</span>';
+  $('lPerLap').innerHTML = (lPerLap / vol).toFixed(2) + '<span class="unit">' + volUnit + '</span>';
   $('weightPerLap').textContent = sg > 0 ? kgPerLap.toFixed(2) + ' kg · ' + lbsPerLap.toFixed(2) + ' lbs per lap' : '-- kg · -- lbs per lap';
-  $('netBurned').innerHTML = netL.toFixed(1) + '<span class="unit">L</span>';
-  $('lPerKm').textContent = lPerKm.toFixed(2);
+  $('netBurned').innerHTML = (netL / vol).toFixed(1) + '<span class="unit">' + volUnit + '</span>';
+  $('lPerKm').textContent = (useGal ? milesPerGal : lPerKm).toFixed(2);
+  $('econLbl').textContent = useGal ? 'Miles / gal' : 'Liters / km';
   $('estStint').textContent = maxLaps;
 }
 
@@ -479,9 +487,10 @@ function renderLog() {
   $('historyCard').hidden = !sessionLog.length;
   $('clearLogBtn').textContent = pending === 'log' ? 'Tap again to clear' : 'Clear all';
   $('historyList').innerHTML = sessionLog.map(function (e, i) {
+    var vol = e.gal ? GAL : 1, u = e.gal ? 'gal' : 'L';
     return '<li><div><strong>' + esc(e.name) + '</strong><div class="meta">' + esc(e.laps) + ' laps · ' + esc(e.unitInfo) +
-      ' · ' + e.net.toFixed(1) + ' L net</div></div>' +
-      '<div class="r"><span class="num">' + e.perLap.toFixed(2) + '<span class="unit">L/lap</span></span>' +
+      ' · ' + (e.net / vol).toFixed(1) + ' ' + u + ' net</div></div>' +
+      '<div class="r"><span class="num">' + (e.perLap / vol).toFixed(2) + '<span class="unit">' + u + '/lap</span></span>' +
       '<button type="button" class="small" data-i="' + i + '" aria-label="Remove log entry">Remove</button></div></li>';
   }).join('');
 }
@@ -498,7 +507,8 @@ $('saveBtn').onclick = function () {
     laps: $('lapsRun').value || 0,
     unitInfo: weight ? activeUnit + ' @ ' + ($('fuelTemp').value || '60') + '°' + tempUnit : activeUnit,
     net: last.netL,
-    perLap: last.lPerLap
+    perLap: last.lPerLap,
+    gal: activeUnit === 'gal'   // shown in gallons; the numbers themselves stay in liters
   });
   pending = null; renderLog();
 };
@@ -846,7 +856,7 @@ function restore() {
   }
   if (Array.isArray(d.log)) {
     sessionLog = d.log.filter(function (e) { return e && isNum(e.net) && isNum(e.perLap); })
-      .map(function (e) { return { name: String(e.name), laps: String(e.laps), unitInfo: String(e.unitInfo), net: e.net, perLap: e.perLap }; });
+      .map(function (e) { return { name: String(e.name), laps: String(e.laps), unitInfo: String(e.unitInfo), net: e.net, perLap: e.perLap, gal: e.gal === true }; });
   }
   if (['L', 'gal', 'kg', 'lbs'].indexOf(d.unit) >= 0) activeUnit = d.unit;
   tempUnit = d.tempUnit === 'C' ? 'C' : 'F';
