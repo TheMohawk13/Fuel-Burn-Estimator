@@ -330,24 +330,30 @@ var TRACKS = [   // alphabetical, Custom last
   { name: 'Circuit of the Americas (COTA)', miles: 3.426 },
   { name: 'Daytona International Speedway (Road)', miles: 3.56 },
   { name: 'Detroit Street Circuit', miles: 1.654 },
+  { name: 'Eagles Canyon Raceway', miles: 2.75 },
+  { name: 'Homestead-Miami Speedway (Road)', miles: 2.3 },
   { name: 'Indianapolis Motor Speedway (Road)', miles: 2.439 },
   { name: 'Laguna Seca', miles: 2.238 },
   { name: 'Lime Rock Park', miles: 1.474 },
   { name: 'Long Beach Street Circuit', miles: 1.968 },
+  { name: 'Michelin Raceway Road Atlanta', miles: 2.54 },
   { name: 'Mid-Ohio Sports Car Course', miles: 2.258 },
   { name: 'Road America', miles: 4.048 },
-  { name: 'Road Atlanta', miles: 2.54 },
   { name: 'Sebring International Raceway', miles: 3.74 },
   { name: 'Sonoma Raceway', miles: 2.52 },
+  { name: 'Thunderhill Raceway Park', miles: 2.866 },
   { name: 'VIRginia International Raceway', miles: 3.27 },
   { name: 'Watkins Glen International', miles: 3.40 },
+  { name: 'West Desert (Utah Motorsports)', miles: 4.486 },
   { name: 'Custom Track...', miles: 0 }
 ];
 var DEFAULT_TRACK = 'Daytona International Speedway (Road)';
 // Saves from before the list grew stored the track's position instead of its name.
-var LEGACY_TRACKS = ['Daytona International Speedway (Road)', 'Sebring International Raceway', 'Road Atlanta', 'Watkins Glen International',
+var LEGACY_TRACKS = ['Daytona International Speedway (Road)', 'Sebring International Raceway', 'Michelin Raceway Road Atlanta', 'Watkins Glen International',
   'Road America', 'VIRginia International Raceway', 'Laguna Seca', 'Indianapolis Motor Speedway (Road)', 'Mid-Ohio Sports Car Course',
   'Barber Motorsports Park', 'Sonoma Raceway', 'Circuit of the Americas (COTA)', 'Custom Track...'];
+// Tracks whose saved name changed.
+var RENAMED_TRACKS = { 'Road Atlanta': 'Michelin Raceway Road Atlanta' };
 var GAL = 3.785411784, LB = 0.45359237, KM = 1.609344, KG_TO_LB = 1 / LB;
 var KEY = 'fuelBurn.v1';
 // Every typed or picked value that is saved between visits.
@@ -890,6 +896,7 @@ function restore() {
   renderLib();   // builds the jug pickers before their saved picks are put back
   var f = d.fields && typeof d.fields === 'object' ? d.fields : {};
   if (typeof f.trackSelect === 'string' && /^\d+$/.test(f.trackSelect)) f = Object.assign({}, f, { trackSelect: LEGACY_TRACKS[parseInt(f.trackSelect, 10)] || '' });
+  if (typeof f.trackSelect === 'string' && RENAMED_TRACKS.hasOwnProperty(f.trackSelect)) f = Object.assign({}, f, { trackSelect: RENAMED_TRACKS[f.trackSelect] });
   FIELDS.forEach(function (id) { if (typeof f[id] === 'string') $(id).value = f[id]; });
   if ($('trackSelect').selectedIndex < 0) $('trackSelect').value = DEFAULT_TRACK;
   // A blend that is no longer in the list (older saves) keeps its saved SG and coefficient as Custom SG.
