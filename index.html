@@ -324,27 +324,26 @@ h2 .meta{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-w
 </main>
 
 <script>
-var TRACKS = [
-  // IMSA WeatherTech Championship and Michelin Pilot Challenge, in 2027 season order
-  { group: 'IMSA WeatherTech / Pilot Challenge', name: 'Daytona International Speedway (Road)', miles: 3.56 },
-  { group: 'IMSA WeatherTech / Pilot Challenge', name: 'Sebring International Raceway', miles: 3.74 },
-  { group: 'IMSA WeatherTech / Pilot Challenge', name: 'Long Beach Street Circuit', miles: 1.968 },
-  { group: 'IMSA WeatherTech / Pilot Challenge', name: 'Laguna Seca', miles: 2.238 },
-  { group: 'IMSA WeatherTech / Pilot Challenge', name: 'Detroit Street Circuit', miles: 1.645 },
-  { group: 'IMSA WeatherTech / Pilot Challenge', name: 'Mid-Ohio Sports Car Course', miles: 2.258 },
-  { group: 'IMSA WeatherTech / Pilot Challenge', name: 'Watkins Glen International', miles: 3.40 },
-  { group: 'IMSA WeatherTech / Pilot Challenge', name: 'Canadian Tire Motorsport Park', miles: 2.459 },
-  { group: 'IMSA WeatherTech / Pilot Challenge', name: 'Road America', miles: 4.048 },
-  { group: 'IMSA WeatherTech / Pilot Challenge', name: 'VIRginia International Raceway', miles: 3.27 },
-  { group: 'IMSA WeatherTech / Pilot Challenge', name: 'Indianapolis Motor Speedway (Road)', miles: 2.439 },
-  { group: 'IMSA WeatherTech / Pilot Challenge', name: 'Lime Rock Park', miles: 1.474 },
-  { group: 'IMSA WeatherTech / Pilot Challenge', name: 'Road Atlanta', miles: 2.54 },
-  // SRO America venues that IMSA does not visit
-  { group: 'SRO America', name: 'Sonoma Raceway', miles: 2.52 },
-  { group: 'SRO America', name: 'Circuit of the Americas (COTA)', miles: 3.426 },
-  { group: 'SRO America', name: 'Barber Motorsports Park', miles: 2.38 },
-  { group: '', name: 'Custom Track...', miles: 0 }
+var TRACKS = [   // alphabetical, Custom last
+  { name: 'Barber Motorsports Park', miles: 2.38 },
+  { name: 'Canadian Tire Motorsport Park', miles: 2.459 },
+  { name: 'Circuit of the Americas (COTA)', miles: 3.426 },
+  { name: 'Daytona International Speedway (Road)', miles: 3.56 },
+  { name: 'Detroit Street Circuit', miles: 1.654 },
+  { name: 'Indianapolis Motor Speedway (Road)', miles: 2.439 },
+  { name: 'Laguna Seca', miles: 2.238 },
+  { name: 'Lime Rock Park', miles: 1.474 },
+  { name: 'Long Beach Street Circuit', miles: 1.968 },
+  { name: 'Mid-Ohio Sports Car Course', miles: 2.258 },
+  { name: 'Road America', miles: 4.048 },
+  { name: 'Road Atlanta', miles: 2.54 },
+  { name: 'Sebring International Raceway', miles: 3.74 },
+  { name: 'Sonoma Raceway', miles: 2.52 },
+  { name: 'VIRginia International Raceway', miles: 3.27 },
+  { name: 'Watkins Glen International', miles: 3.40 },
+  { name: 'Custom Track...', miles: 0 }
 ];
+var DEFAULT_TRACK = 'Daytona International Speedway (Road)';
 // Saves from before the list grew stored the track's position instead of its name.
 var LEGACY_TRACKS = ['Daytona International Speedway (Road)', 'Sebring International Raceway', 'Road Atlanta', 'Watkins Glen International',
   'Road America', 'VIRginia International Raceway', 'Laguna Seca', 'Indianapolis Motor Speedway (Road)', 'Mid-Ohio Sports Car Course',
@@ -370,23 +369,19 @@ function esc(s) {
   });
 }
 
-(function () {
-  var groups = {};
-  TRACKS.forEach(function (t) {
-    var o = document.createElement('option');
-    o.value = t.name; o.textContent = t.name;
-    var parent = $('trackSelect');
-    if (t.group) {
-      if (!groups[t.group]) { groups[t.group] = document.createElement('optgroup'); groups[t.group].label = t.group; parent.appendChild(groups[t.group]); }
-      parent = groups[t.group];
-    }
-    parent.appendChild(o);
-  });
-})();
+TRACKS.forEach(function (t) {
+  var o = document.createElement('option');
+  o.value = t.name; o.textContent = t.name;
+  $('trackSelect').appendChild(o);
+});
+$('trackSelect').value = DEFAULT_TRACK;
 function getTrack() {
-  var v = $('trackSelect').value;
-  for (var i = 0; i < TRACKS.length; i++) if (TRACKS[i].name === v) return TRACKS[i];
-  return TRACKS[0];
+  var v = $('trackSelect').value, fallback = TRACKS[0];
+  for (var i = 0; i < TRACKS.length; i++) {
+    if (TRACKS[i].name === v) return TRACKS[i];
+    if (TRACKS[i].name === DEFAULT_TRACK) fallback = TRACKS[i];
+  }
+  return fallback;
 }
 
 /* ---------- tabs ---------- */
@@ -896,7 +891,7 @@ function restore() {
   var f = d.fields && typeof d.fields === 'object' ? d.fields : {};
   if (typeof f.trackSelect === 'string' && /^\d+$/.test(f.trackSelect)) f = Object.assign({}, f, { trackSelect: LEGACY_TRACKS[parseInt(f.trackSelect, 10)] || '' });
   FIELDS.forEach(function (id) { if (typeof f[id] === 'string') $(id).value = f[id]; });
-  if ($('trackSelect').selectedIndex < 0) $('trackSelect').selectedIndex = 0;
+  if ($('trackSelect').selectedIndex < 0) $('trackSelect').value = DEFAULT_TRACK;
   // A blend that is no longer in the list (older saves) keeps its saved SG and coefficient as Custom SG.
   if ($('fuelPreset').selectedIndex < 0) $('fuelPreset').value = presetFor(parseFloat($('baseSgInput').value));
   renderJugSelects();   // falls back to a sensible pick if a saved jug no longer exists
