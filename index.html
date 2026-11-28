@@ -325,20 +325,30 @@ h2 .meta{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-w
 
 <script>
 var TRACKS = [
-  { name: 'Daytona International Speedway (Road)', miles: 3.56 },
-  { name: 'Sebring International Raceway', miles: 3.74 },
-  { name: 'Road Atlanta', miles: 2.54 },
-  { name: 'Watkins Glen International', miles: 3.40 },
-  { name: 'Road America', miles: 4.048 },
-  { name: 'VIRginia International Raceway', miles: 3.27 },
-  { name: 'Laguna Seca', miles: 2.238 },
-  { name: 'Indianapolis Motor Speedway (Road)', miles: 2.439 },
-  { name: 'Mid-Ohio Sports Car Course', miles: 2.258 },
-  { name: 'Barber Motorsports Park', miles: 2.38 },
-  { name: 'Sonoma Raceway', miles: 2.52 },
-  { name: 'Circuit of the Americas (COTA)', miles: 3.426 },
-  { name: 'Custom Track...', miles: 0 }
+  // IMSA WeatherTech Championship and Michelin Pilot Challenge, in 2027 season order
+  { group: 'IMSA WeatherTech / Pilot Challenge', name: 'Daytona International Speedway (Road)', miles: 3.56 },
+  { group: 'IMSA WeatherTech / Pilot Challenge', name: 'Sebring International Raceway', miles: 3.74 },
+  { group: 'IMSA WeatherTech / Pilot Challenge', name: 'Long Beach Street Circuit', miles: 1.968 },
+  { group: 'IMSA WeatherTech / Pilot Challenge', name: 'Laguna Seca', miles: 2.238 },
+  { group: 'IMSA WeatherTech / Pilot Challenge', name: 'Detroit Street Circuit', miles: 1.645 },
+  { group: 'IMSA WeatherTech / Pilot Challenge', name: 'Mid-Ohio Sports Car Course', miles: 2.258 },
+  { group: 'IMSA WeatherTech / Pilot Challenge', name: 'Watkins Glen International', miles: 3.40 },
+  { group: 'IMSA WeatherTech / Pilot Challenge', name: 'Canadian Tire Motorsport Park', miles: 2.459 },
+  { group: 'IMSA WeatherTech / Pilot Challenge', name: 'Road America', miles: 4.048 },
+  { group: 'IMSA WeatherTech / Pilot Challenge', name: 'VIRginia International Raceway', miles: 3.27 },
+  { group: 'IMSA WeatherTech / Pilot Challenge', name: 'Indianapolis Motor Speedway (Road)', miles: 2.439 },
+  { group: 'IMSA WeatherTech / Pilot Challenge', name: 'Lime Rock Park', miles: 1.474 },
+  { group: 'IMSA WeatherTech / Pilot Challenge', name: 'Road Atlanta', miles: 2.54 },
+  // SRO America venues that IMSA does not visit
+  { group: 'SRO America', name: 'Sonoma Raceway', miles: 2.52 },
+  { group: 'SRO America', name: 'Circuit of the Americas (COTA)', miles: 3.426 },
+  { group: 'SRO America', name: 'Barber Motorsports Park', miles: 2.38 },
+  { group: '', name: 'Custom Track...', miles: 0 }
 ];
+// Saves from before the list grew stored the track's position instead of its name.
+var LEGACY_TRACKS = ['Daytona International Speedway (Road)', 'Sebring International Raceway', 'Road Atlanta', 'Watkins Glen International',
+  'Road America', 'VIRginia International Raceway', 'Laguna Seca', 'Indianapolis Motor Speedway (Road)', 'Mid-Ohio Sports Car Course',
+  'Barber Motorsports Park', 'Sonoma Raceway', 'Circuit of the Americas (COTA)', 'Custom Track...'];
 var GAL = 3.785411784, LB = 0.45359237, KM = 1.609344, KG_TO_LB = 1 / LB;
 var KEY = 'fuelBurn.v1';
 // Every typed or picked value that is saved between visits.
@@ -360,11 +370,24 @@ function esc(s) {
   });
 }
 
-TRACKS.forEach(function (t, i) {
-  var o = document.createElement('option');
-  o.value = i; o.textContent = t.name;
-  $('trackSelect').appendChild(o);
-});
+(function () {
+  var groups = {};
+  TRACKS.forEach(function (t) {
+    var o = document.createElement('option');
+    o.value = t.name; o.textContent = t.name;
+    var parent = $('trackSelect');
+    if (t.group) {
+      if (!groups[t.group]) { groups[t.group] = document.createElement('optgroup'); groups[t.group].label = t.group; parent.appendChild(groups[t.group]); }
+      parent = groups[t.group];
+    }
+    parent.appendChild(o);
+  });
+})();
+function getTrack() {
+  var v = $('trackSelect').value;
+  for (var i = 0; i < TRACKS.length; i++) if (TRACKS[i].name === v) return TRACKS[i];
+  return TRACKS[0];
+}
 
 /* ---------- tabs ---------- */
 function showTab(which) {
@@ -432,12 +455,12 @@ function setUnit(unit) {
 }
 
 function getActiveMiles() {
-  var t = TRACKS[parseInt($('trackSelect').value, 10)];
+  var t = getTrack();
   return t.miles === 0 ? (parseFloat($('customMiles').value) || 0) : t.miles;
 }
 
 function updateTrackInfo() {
-  var t = TRACKS[parseInt($('trackSelect').value, 10)];
+  var t = getTrack();
   $('customTrackFields').hidden = t.miles !== 0;
   var miles = getActiveMiles();
   $('trackMeta').textContent = miles > 0
@@ -503,7 +526,7 @@ $('saveBtn').onclick = function () {
   if (weight && !(getAdjustedSG() > 0)) { $('logMsg').textContent = 'Enter the fuel SG first.'; return; }
   if (!(last.lPerLap > 0)) { $('logMsg').textContent = 'Enter fuel in, fuel out and laps first.'; return; }
   $('logMsg').textContent = '';
-  var t = TRACKS[parseInt($('trackSelect').value, 10)];
+  var t = getTrack();
   var name = t.miles === 0 ? ($('customName').value.trim() || 'Custom') : t.name.split(' (')[0];
   sessionLog.unshift({
     name: name,
@@ -871,6 +894,7 @@ function restore() {
 
   renderLib();   // builds the jug pickers before their saved picks are put back
   var f = d.fields && typeof d.fields === 'object' ? d.fields : {};
+  if (typeof f.trackSelect === 'string' && /^\d+$/.test(f.trackSelect)) f = Object.assign({}, f, { trackSelect: LEGACY_TRACKS[parseInt(f.trackSelect, 10)] || '' });
   FIELDS.forEach(function (id) { if (typeof f[id] === 'string') $(id).value = f[id]; });
   if ($('trackSelect').selectedIndex < 0) $('trackSelect').selectedIndex = 0;
   // A blend that is no longer in the list (older saves) keeps its saved SG and coefficient as Custom SG.
