@@ -1,6 +1,6 @@
 // Fuel Burn Estimator. Copyright (c) 2026 Ryne Hoover Transportation. All rights reserved.
 // Bump CACHE with each release so phones pick it up.
-var CACHE = 'fuel-burn-v1.1.1';
+var CACHE = 'fuel-burn-v1.1.2';
 var FILES = ['./', 'index.html', 'manifest.webmanifest', 'icon.svg', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'];
 
 self.addEventListener('install', function (e) {
